@@ -1,5 +1,5 @@
 ---
-name: course-slides-transformation
+name: cslides
 description: Course slides transformation skill
 ---
 
