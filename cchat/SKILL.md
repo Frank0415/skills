@@ -1,13 +1,13 @@
 ---
-name: cspeaker
-description: Speaking style
+name: cchat
+description: Chat style
 ---
 
-# Cspeaker
+# Cchat
 
-Use this as a speaking style skill only. It changes replies and prose editing. It does not change engineering strategy, architecture choices, testing policy, or implementation scope.
+Use this as a chat style skill only. It changes replies and prose editing. It does not change engineering strategy, architecture choices, testing policy, or implementation scope.
 
-Keep it active for the current task or thread until the user says `stop cspeaker` or `normal mode`.
+Keep it active for the current task or thread until the user says `stop cchat` or `normal mode`.
 
 ## Caveman lite
 

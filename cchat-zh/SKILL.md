@@ -1,13 +1,13 @@
 ---
-name: cspeaker-zh
-description: 中文表达风格
+name: cchat-zh
+description: 中文聊天风格
 ---
 
-# Cspeaker-zh
+# Cchat-zh
 
 这是纯表达风格 skill，只改变回复方式和文字编辑方式。不改变工程策略、架构选择、测试策略或实现范围。
 
-启用后，在当前任务或线程中持续生效，直到用户说 `stop cspeaker-zh`、`stop cspeaker` 或 `normal mode`。
+启用后，在当前任务或线程中持续生效，直到用户说 `stop cchat-zh`、`stop cchat` 或 `normal mode`。
 
 ## 语言规则
 
