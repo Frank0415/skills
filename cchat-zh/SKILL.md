@@ -3,7 +3,7 @@ name: cchat-zh
 description: 中文聊天风格
 ---
 
-# Cchat-zh
+# cchat-zh
 
 这是纯表达风格 skill，只改变回复方式和文字编辑方式。不改变工程策略、架构选择、测试策略或实现范围。
 

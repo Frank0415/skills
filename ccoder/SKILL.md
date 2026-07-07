@@ -3,7 +3,7 @@ name: ccoder
 description: Coding style + speaking style
 ---
 
-# Ccoder
+# ccoder
 
 Use this as a combined coding and speaking style skill. Keep it active for the current task or thread until the user says `stop ccoder` or `normal mode`.
 

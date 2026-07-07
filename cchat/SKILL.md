@@ -3,7 +3,7 @@ name: cchat
 description: Chat style
 ---
 
-# Cchat
+# cchat
 
 Use this as a chat style skill only. It changes replies and prose editing. It does not change engineering strategy, architecture choices, testing policy, or implementation scope.
 

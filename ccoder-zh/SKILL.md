@@ -3,7 +3,7 @@ name: ccoder-zh
 description: 编码风格+表达风格
 ---
 
-# Ccoder-zh
+# ccoder-zh
 
 这是合并后的编码与表达风格 skill。启用后，在当前任务或线程中持续生效，直到用户说 `stop ccoder-zh`、`stop ccoder` 或 `normal mode`。
 
