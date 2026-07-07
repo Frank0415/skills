@@ -1,6 +1,6 @@
 ---
 name: cchat
-description: Chat style
+description: chat style
 ---
 
 # cchat

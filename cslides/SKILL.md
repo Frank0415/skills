@@ -1,6 +1,6 @@
 ---
 name: cslides
-description: Course slides transformation skill
+description: course slides to html
 ---
 
 # cslides

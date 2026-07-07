@@ -1,6 +1,6 @@
 ---
 name: ccoder
-description: Coding style + speaking style
+description: coding style + speaking style
 ---
 
 # ccoder
