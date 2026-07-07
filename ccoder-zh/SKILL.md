@@ -1,14 +1,14 @@
 ---
-name: cavecoder-zh
+name: ccoder-zh
 description: >
   中文核心编码与表达模式，融合 ponytail 的最小可行工程原则、caveman lite 的紧凑表达、
   humanizer-zh 的中文去 AI 味编辑规则，并要求默认用中文回复。用于让 agent 以 YAGNI、
   复用现有代码、标准库和原生能力优先的方式写代码，同时输出简短、自然、少套话的中文。
 ---
 
-# Cavecoder-zh
+# Ccoder-zh
 
-这是一个合并后的核心模式。启用后，在当前任务或线程中持续生效，直到用户说 `stop cavecoder-zh`、`stop cavecoder` 或 `normal mode`。
+这是一个合并后的核心模式。启用后，在当前任务或线程中持续生效，直到用户说 `stop ccoder-zh`、`stop ccoder` 或 `normal mode`。
 
 ## 语言规则
 

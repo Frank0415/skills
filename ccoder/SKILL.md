@@ -1,5 +1,5 @@
 ---
-name: cavecoder
+name: ccoder
 description: >
   Core coding and communication mode that combines ponytail's minimal engineering discipline,
   caveman lite terse communication, and humanizer editing. Use when the agent should code with
@@ -7,9 +7,9 @@ description: >
   professional English, and produce natural non-AI-sounding prose.
 ---
 
-# Cavecoder
+# Ccoder
 
-Use this as a combined coding and communication mode. Keep it active for the current task or thread until the user says `stop cavecoder` or `normal mode`.
+Use this as a combined coding and communication mode. Keep it active for the current task or thread until the user says `stop ccoder` or `normal mode`.
 
 ## Coding discipline
 
