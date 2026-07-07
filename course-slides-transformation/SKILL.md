@@ -462,11 +462,9 @@ Example 单元:必须保留完整求解链。
 说明这些页最终建立了什么认识。
 </li>
 </ul>
-<!-- 若存在关键公式,在适当位置加入 -->
-<div class="equation emphasis">
-\[
-...合法 LaTeX 公式...
-\]
+<!-- 若存在关键公式,在适当位置加入。不要裸写 \[...\]。 -->
+<div class="math-display" data-tex="\left\langle d_i, d_j \right\rangle">
+  \left\langle d_i, d_j \right\rangle
 </div>
 </section>
 <section class="transition-map">
@@ -730,13 +728,13 @@ Hero 区必须包含:
 
 不得直接复制破损 OCR 数学文本。
 统一规则:
-- 行内公式使用 \(...\) ;
-- 独立公式使用 \[...\] ;
-- 单位使用 \mathrm{} ,例如 \(25.9\,\mathrm{mV}\) ;
-- 文本下标使用 \mathrm{} 或 \text{} ,例如:
-- \(I_{\mathrm{S}}\)
-- \(V_{\mathrm{on}}\)
-- \(x_{\text{in}}(t)\)
+- 先把公式转写成合法 LaTeX source,再放入 `data-tex` 属性。
+- `data-tex` 与元素文本中的 LaTeX source 必须一致;属性值中的 `&`、`<`、`"` 必须按 HTML 属性规则转义。
+- 行内公式使用 `<span class="math-text" data-tex="...">...</span>`。
+- 独立公式使用 `<div class="math-display" data-tex="...">...</div>`。
+- 不得在可见 HTML 正文中裸写 `\(...\)` 或 `\[...\]`;这些定界符只允许出现在 MathJax 配置、代码示例或必要的内部字符串说明中。
+- 单位使用 `\mathrm{}` ,例如 `25.9\,\mathrm{mV}`。
+- 文本下标使用 `\mathrm{}` 或 `\text{}` ,例如 `I_{\mathrm{S}}`、`V_{\mathrm{on}}`、`x_{\text{in}}(t)`。
 - 分式使用 \frac{}{} ;
 - 指数使用 e^{} ;
 - 对数使用 \ln ;
@@ -765,7 +763,7 @@ Hero 区必须包含:
 
 ### 3. HTML 中必须载入 MathJax 3
 
-在 `<head>` 中加入合法的 MathJax 3 配置。必须写成完整 HTML,不要生成断裂标签。
+在 `<head>` 中加入合法的 MathJax 3 配置。必须写成完整 HTML,不要生成断裂标签。`math-text` 和 `math-display` 必须由 `data-tex` 渲染,不能依赖裸露的 `\(...\)` 或 `\[...\]` 留在页面上。
 
 ```html
 <script>
@@ -779,6 +777,17 @@ window.MathJax = {
 };
 </script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script>
+window.addEventListener('load', async () => {
+  if (!window.MathJax?.tex2svgPromise) return;
+  for (const el of document.querySelectorAll('.math-text[data-tex], .math-display[data-tex]')) {
+    const tex = el.dataset.tex || el.textContent.trim();
+    const display = el.classList.contains('math-display');
+    const svg = await MathJax.tex2svgPromise(tex, { display });
+    el.replaceChildren(svg);
+  }
+});
+</script>
 ```
 
 不要生成这样的断裂标签:
@@ -791,16 +800,17 @@ window.MathJax = {
 
 交付前必须实际检查:
 
-- 所有 `\(` 与 `\)` 配对;
-- 所有 `\[` 与 `\]` 配对;
+- 所有公式都使用 `.math-text[data-tex]` 或 `.math-display[data-tex]` 包装;
+- 页面可见区域不存在裸露的 `\(...\)`、`\[...\]` 或未渲染 LaTeX;
+- 若 MathJax 配置、代码示例或内部字符串中出现 `\(`、`\)`、`\[`、`\]`,它们必须正确配对;
 - 公式中不存在未修复的 OCR 乱码;
 - HTML 中不存在因字符串转义错误导致的反斜杠丢失;
 - 关键公式索引面板可以正常渲染;
 - 至少一个公式密集单元可以正常渲染;
 - 至少一个 Example 单元中的公式可以正常渲染;
-含上下标、分式、指数、积分、微分或偏导的公式显示正常。
+- 含上下标、分式、指数、积分、微分或偏导的公式显示正常。
 
-所有可见数学表达式都必须进入 MathJax 渲染路径,包括正文段落、小标题、卡片标题、导航目录、表格单元格、图注、公式索引,以及 Example / Supplement 标签附近的短公式。不得在可见 HTML 文本中裸写 `X^T X`、`A^T A`、`X'`、`x_i`、`d_i`、`\lambda` 等数学表达式。只要用户能在页面上看到,它就必须是 MathJax 或预渲染后的数学 SVG/MathML。
+所有可见数学表达式都必须进入 MathJax 渲染路径,包括正文段落、小标题、卡片标题、导航目录、表格单元格、图注、公式索引,以及 Example / Supplement 标签附近的短公式。不得在可见 HTML 文本中裸写 `X^T X`、`A^T A`、`X'`、`x_i`、`d_i`、`\lambda`、`\(...\)`、`\[...\]` 等数学表达式。只要用户能在页面上看到,它就必须是 `math-text` / `math-display` 包装后渲染出的 MathJax SVG,或预渲染后的数学 SVG/MathML。
 
 推荐包装方式:
 
@@ -1085,6 +1095,7 @@ alt="从 X prime 恢复 X^T X"
 - 关键词搜索;
 - 页面定位;
 - 图片放大遮罩;
+- 从 `.math-text[data-tex]` 和 `.math-display[data-tex]` 渲染 MathJax SVG;
 - Esc 退出;
 - 移动端目录开关;
 - 定位后的短暂高亮反馈。
@@ -1139,7 +1150,8 @@ alt="从 X prime 恢复 X^T X"
 
 - 所有关键公式均经过原图核对。
 - 未直接使用破损 OCR 数学文本。
-- 所有 LaTeX 定界符均正确配对。
+- 所有公式均使用 `.math-text[data-tex]` 或 `.math-display[data-tex]` 包装并渲染。
+- 可见页面中没有裸露的 `\(...\)`、`\[...\]` 或未渲染 LaTeX。
 - 公式无乱码、无反斜杠转义错误。
 - 可见文本中没有裸露的 `X^T X`、`A^T A`、`X&#x27;`、`X\&#x27;`。
 - HTML 中没有 `\night`、`\nangle`、`Missing or unrecognized delimiter`、`Extra \left`。
