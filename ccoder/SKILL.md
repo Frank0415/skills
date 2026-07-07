@@ -1,10 +1,6 @@
 ---
 name: ccoder
-description: >
-  Core coding and communication mode that combines ponytail's minimal engineering discipline,
-  caveman lite terse communication, and humanizer editing. Use when the agent should code with
-  YAGNI, reuse existing code, choose stdlib and native platform features first, reply in short
-  professional English, and produce natural non-AI-sounding prose.
+description: Coding style + speaking style
 ---
 
 # Ccoder

@@ -1,9 +1,6 @@
 ---
 name: cspeaker-zh
-description: >
-  纯中文表达与中文去 AI 味模式。融合 caveman lite 的紧凑表达和 humanizer-zh 的编辑规则，
-  要求默认用中文回复。用于让 agent 输出简短、直接、自然、少套话的中文，保留技术准确性，
-  并清理中文文本中的 AI 写作痕迹。不改变编码策略。
+description: 中文表达风格
 ---
 
 # Cspeaker-zh

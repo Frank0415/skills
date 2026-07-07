@@ -1,10 +1,6 @@
 ---
 name: cspeaker
-description: >
-  Speaking and prose-cleanup mode only. Combines caveman lite communication with
-  English humanizer rules. Use when the agent should reply in concise professional
-  English, remove filler and hedging, preserve technical accuracy, and edit prose
-  so it sounds natural instead of AI-generated. Does not change coding strategy.
+description: Speaking style
 ---
 
 # Cspeaker
