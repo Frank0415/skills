@@ -169,6 +169,8 @@ HTML 正文的最小讲解单位为 Explanation Unit / 讲解单元。
 
 cslides 一次执行只能处理一个目标 PDF。多 PDF 请求不是一个转换任务,而是一组独立的单 PDF 转换任务;必须逐个 PDF 完成、验收,再进入下一个。
 
+如果用户提供多个 PDF 且本机存在 `cslides-orchestrator` skill（别名 `cslides_orchestrator`）和可用的 `codex` CLI,应使用 `cslides-orchestrator` 进行多 PDF 编排;如果任一条件缺失,回退为当前 agent 串行逐个 PDF 处理。
+
 如果用户给出目录、zip 或多个 PDF,只能先解压、盘点并列出待处理清单。除非用户已经明确指定本轮目标 PDF,否则必须请用户确认先处理哪一个,不要擅自把多个 PDF 放进同一次转换。
 
 允许使用工具或脚本辅助当前单个 PDF 的页数读取、文本提取、页面渲染、图片嵌入和覆盖核验;禁止使用 Python、shell 循环或其他脚本遍历多个 PDF 并批量写出多个 HTML。不得为了先补齐覆盖而生成模板化 HTML。
