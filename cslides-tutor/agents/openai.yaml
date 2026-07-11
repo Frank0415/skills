@@ -1,0 +1,4 @@
+interface:
+  display_name: "CSlides Tutor"
+  short_description: "将学生追问与详细推导持续写回现有课程 HTML 讲义内容"
+  default_prompt: "使用 $cslides-tutor 回答我的课程追问，并把问答写回现有 HTML 讲义。"
