@@ -11,13 +11,39 @@ Use this skill when the user provides multiple course-slide PDFs, a directory of
 
 This skill does not write course HTML itself. It orchestrates independent Codex CLI workers. Each conversion worker receives exactly one PDF path and uses `cslides` for that PDF only.
 
+## Preflight interview
+
+Before starting workers, resolve orchestration settings with the user in a `grill-me`-style interview:
+
+- Ask one question at a time.
+- For each question, provide the recommended answer.
+- If the user already specified an answer in the current request, do not ask it again.
+- If a setting can be discovered from the local environment, inspect it instead of asking.
+
+Required questions:
+
+1. Ask how many active subagents the user wants.
+   - Recommended answer: `2`, because it reduces context drift and makes judge/fix feedback easier to track.
+   - This number is the total active Codex CLI worker count, including convert, judge, and fix workers.
+2. Ask which model the subagents should use.
+   - Recommended answer: use the current Codex CLI default model unless the user names a specific model.
+   - If the user also specifies reasoning effort, pass it through to every worker. Otherwise use the Codex CLI default effort.
+
+Do not dispatch any Codex CLI worker until these two settings are resolved, unless the user explicitly says to use defaults.
+
+When launching workers:
+
+- If the user chose a model, pass it with `-m <MODEL>`.
+- If the user chose a reasoning effort, pass it with `-c model_reasoning_effort="<EFFORT>"`.
+- Apply the same resolved model and effort to convert, judge, and fix workers unless the user explicitly gives per-role settings.
+
 ## Hard rules
 
 - Do not use computer-use, browser UI, Chrome UI, or any GUI automation. Codex CLI workers cannot rely on those tools.
 - Do not create a Python, shell, or Node script that loops over PDFs and writes HTML files.
 - Do not batch multiple PDFs into one cslides prompt.
 - Do not ask one judge or fix worker to evaluate multiple PDFs.
-- Default parallelism is 4 total active Codex CLI instances, including convert, judge, and fix workers.
+- Default parallelism is the value resolved in the preflight interview.
 - A PDF is complete only after convert succeeds and judge returns `PASS`.
 
 ## Prerequisite check
@@ -150,7 +176,7 @@ Every 3 minutes:
 5. If a fix worker finished, start judge again.
 6. If a slot is free and queued PDFs remain, start the next convert worker.
 
-Keep at most 4 active Codex CLI instances total.
+Keep at most the resolved active subagent count.
 
 ## Final report
 
