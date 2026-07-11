@@ -26,8 +26,8 @@ Required questions:
    - Recommended answer: `2`, because it reduces context drift and makes judge/fix feedback easier to track.
    - This number is the total active Codex CLI worker count, including convert, judge, and fix workers.
 2. Ask which model the subagents should use.
-   - Recommended answer: use the current Codex CLI default model unless the user names a specific model.
-   - If the user also specifies reasoning effort, pass it through to every worker. Otherwise use the Codex CLI default effort.
+   - Recommended answer: use the user's CLI default model unless the user names a specific model.
+   - If the user also specifies reasoning effort, pass it through to every worker. Otherwise use the CLI default effort.
 
 Do not dispatch any Codex CLI worker until these two settings are resolved, unless the user explicitly says to use defaults.
 
