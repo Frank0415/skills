@@ -1,6 +1,6 @@
 ---
 name: cslides-orchestrator
-description: orchestrate cslides PDFs
+description: Orchestrate multiple course-slide PDFs through independent cslides workers. Use for PDF folders, batches, or archives; keep one PDF per worker and run separate convert, judge, and fix stages with bounded concurrency.
 ---
 
 # cslides-orchestrator
@@ -52,7 +52,8 @@ Before orchestration, check:
 
 ```bash
 command -v codex
-test -f /Users/franksair/.agents/skills/cslides/SKILL.md
+test -f "$HOME/.agents/skills/cslides/SKILL.md" || \
+  test -f "${CODEX_HOME:-$HOME/.codex}/skills/cslides/SKILL.md"
 ```
 
 If `codex` is missing, cannot start, or `cslides` is not installed, fall back to serial processing in the current agent:

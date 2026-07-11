@@ -1,6 +1,6 @@
 ---
 name: cslides
-description: course slides to html
+description: Convert one course-slide PDF into a self-contained Chinese HTML study guide. Use for slide-to-HTML work requiring complete page coverage, source images, grouped teaching units, formula and diagram explanations, navigation, MathJax, and visual QA.
 ---
 
 # cslides
@@ -16,7 +16,7 @@ description: course slides to html
 
 本任务默认使用中文输出。最终 HTML、页面导航、按钮、目录、图注、单元标题、讲解正文、总结、检查报告和最终回复，都必须用中文。课程原 slide 中的英文标题或术语、代码/API 名称、变量名、文件名、路径、命令、库名、论文名、专有名词，以及必须按原文呈现的公式符号可以保留英文；但只要会影响理解，就要用中文解释它在本讲中的含义和作用。
 
-文风遵循 [$humanizer-zh](/Users/franksair/.agents/skills/humanizer-zh/SKILL.md): 直接讲清楚，不写客套话、宣传腔、金句式总结；不硬凑三段式，不用“此外”“值得注意的是”“至关重要”等空泛连接词堆段落；技术内容保持朴素、准确、具体；句子节奏可以有变化，但不要为了“有人味”牺牲严谨性；不写“希望这对你有帮助”“当然可以”“这是一个……”这类聊天痕迹。面向第一次学这门课的学生解释，但不要把读者当成完全没有判断力的人。
+文风遵循 `humanizer-zh` 风格。先检查该 skill 是否已安装；存在时才调用 `$humanizer-zh`，不存在时不要调用、不要报错或阻塞任务，直接执行以下内置规则：直接讲清楚，不写客套话、宣传腔、金句式总结；不硬凑三段式，不用“此外”“值得注意的是”“至关重要”等空泛连接词堆段落；技术内容保持朴素、准确、具体；句子节奏可以有变化，但不要为了“有人味”牺牲严谨性；不写“希望这对你有帮助”“当然可以”“这是一个……”这类聊天痕迹。面向第一次学这门课的学生解释，但不要把读者当成完全没有判断力的人。
 
 如果原 slide 使用英文术语，推荐写法是先保留英文术语，再用中文解释。例如：“singular value 是矩阵在某个正交方向上的缩放量，不是普通特征值的同义词。”
 
