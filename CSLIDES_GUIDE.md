@@ -61,12 +61,6 @@ cp -R "$HOME/skills/cslides-tutor" "$HOME/.agents/skills/"
 command -v codex
 ```
 
-- `cslides-tutor` 的审计脚本需要 Node.js：
-
-```bash
-command -v node
-```
-
 - `humanizer-zh` 是可选增强。已安装时 `cslides` 才调用；未安装时跳过，不报错或阻塞。核心写作规则已包含在 `cslides` 内。
 - PDF 文本提取、页面渲染和浏览器验证能力越完整，`cslides` 输出越可靠。具体工具由当前 agent 环境选择。
 
@@ -120,7 +114,7 @@ orchestrator 不直接生成讲义。它给每份 PDF 启动独立 `cslides` wor
 - 把问题和答案插入对应知识点附近；
 - 复用原页面的 CSS 与 MathJax 结构；
 - 保持学生追问块默认关闭；
-- 检查重复 ID、公式结构和裸 MathJax 定界符。
+- 由 agent 直接检查重复 ID、公式结构和裸 MathJax 定界符。
 
 已有追问需要补充或纠正时，直接说明原 block 标题或问题。tutor 会修改原 block，避免留下互相矛盾的答案。
 
@@ -136,19 +130,6 @@ orchestrator 不直接生成讲义。它给每份 PDF 启动独立 `cslides` wor
 for skill in cslides cslides-orchestrator cslides-tutor; do
   test -f "$HOME/.agents/skills/$skill/SKILL.md" && echo "OK $skill"
 done
-```
-
-检查 tutor 审计脚本语法：
-
-```bash
-node --check "$HOME/.agents/skills/cslides-tutor/scripts/audit-qna-html.mjs"
-```
-
-审计一份已生成讲义：
-
-```bash
-node "$HOME/.agents/skills/cslides-tutor/scripts/audit-qna-html.mjs" \
-  /absolute/path/lecture-04.html
 ```
 
 ## 更新

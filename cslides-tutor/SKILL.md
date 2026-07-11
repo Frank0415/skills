@@ -80,7 +80,7 @@ Reuse the target's existing classes and component hierarchy. Prefer its current 
 Rules:
 
 - Give every new block a stable, descriptive, unique ID.
-- Add `data-cslides-tutor="qna"` when it does not conflict with the existing markup. The audit script also recognizes older summaries beginning with `学生追问:`.
+- Add `data-cslides-tutor="qna"` when it does not conflict with the existing markup. This gives the agent a stable marker for later revisions.
 - Leave every student-question `<details>` closed by default. Never add the `open` attribute.
 - If the page already requires all blocks to start closed, preserve that site-wide rule.
 - Do not put cards inside cards or add a new visual hierarchy for one answer.
@@ -166,19 +166,9 @@ Require `renderedCount === sourceCount` and `errorCount === 0` after MathJax fin
 
 ## 7. Verify before finishing
 
-Run the bundled audit against each modified HTML:
+Inspect each modified HTML directly. Do not depend on a bundled validation script. Use the agent's normal file, parser, shell, and browser tools as available.
 
-```bash
-node scripts/audit-qna-html.mjs /absolute/path/to/lecture.html
-```
-
-Optionally restrict the report to one new block while still checking global duplicate IDs:
-
-```bash
-node scripts/audit-qna-html.mjs /absolute/path/to/lecture.html --id qa-p020-householder-example
-```
-
-The audit must report zero errors for:
+Check the full document for:
 
 - duplicate IDs;
 - missing question-block IDs;
@@ -187,7 +177,7 @@ The audit must report zero errors for:
 - naked MathJax delimiters inside question blocks;
 - unescaped ampersands inside `data-tex` attributes.
 
-Also perform these checks when the available environment supports them:
+Then perform these checks when the available environment supports them:
 
 - parse the HTML and check inline script syntax;
 - open each changed block at desktop and narrow widths;
@@ -201,4 +191,4 @@ If local `file://` browser policy blocks visual verification, do not bypass it t
 
 ## Final response
 
-Report the modified HTML path, the question blocks added or revised, whether all student blocks remain default-closed, formula/audit results, synchronized variants, and any verification limitation. Do not claim browser validation if only static checks ran.
+Report the modified HTML path, the question blocks added or revised, whether all student blocks remain default-closed, formula and HTML inspection results, synchronized variants, and any verification limitation. Do not claim browser validation if only static checks ran.
