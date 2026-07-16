@@ -270,7 +270,7 @@ Search must cover IDs, page numbers (`23`, `P23`, `P023`), titles, modules, sour
 
 ## Slide images and visual explanation
 
-Render every page clearly, prefer WebP, and embed it as a base64 data URI. Use accurate alt text and page captions. Thumbnails must show structure; zoomed images must make formulas and annotations readable. Keep gallery images in page order. Let the fixed template choose the number of side-by-side slides from the available HTML width instead of forcing two or three columns. During screen reading, the visible gallery area stays near one-third of the viewport height and scrolls locally when additional rows are necessary; print shows every slide without that height cap. Never remove animation or transition pages.
+Render every page clearly, prefer WebP, and embed it as a base64 data URI. Use accurate alt text and page captions. Thumbnails must show structure; zoomed images must make formulas and annotations readable. Keep gallery images in page order. The fixed template uses at most three side-by-side slides: three columns on wide unit cards, two on medium cards, and one on narrow cards. Do not introduce a fourth column or cap each slide to an artificially narrow fixed width. During screen reading, the visible gallery area stays near one-third of the viewport height and scrolls locally when additional rows are necessary; print shows every slide without that height cap. Never remove animation or transition pages.
 
 For each meaningful visual, explain what it shows, where to look first, what axes, units, colors, directions, curves, parameters, or components mean, and how the visual supports the conclusion. When an image is merely illustrative, say so instead of inferring unsupported quantitative relations.
 
@@ -331,7 +331,7 @@ Treat information density as the first visual criterion: the learner should see 
 - a neutral canvas, bright reading surfaces, strong black text, and distinct blue, green, amber, and violet semantic accents rather than a one-color theme;
 - system sans-serif typography with hierarchy from size, weight, spacing, and grouping rather than decorative display fonts;
 - compact translucent navigation, direct controls, visible focus states, immediate press feedback, and restrained motion;
-- light, neutral slide galleries whose `auto-fit` columns respond to the actual content width, whose visible area does not exceed roughly one-third of the viewport height, and whose full-size lightbox preserves legibility;
+- light, neutral slide galleries whose container-aware `3/2/1` columns respond to the unit-card width, never exceed three columns, keep each thumbnail useful for reading, and whose visible area does not exceed roughly one-third of the viewport height; the full-size lightbox preserves full-detail legibility;
 - one framed repeated item per teaching unit, with internal sections separated by rhythm and rules rather than nested card styling;
 - clear visual distinction among always-visible teaching, folded page notes, optional context supplements, formulas, transitions, and mastery outcomes;
 - reduced-motion, reduced-transparency, increased-contrast, mobile navigation, overflow, and print handling.

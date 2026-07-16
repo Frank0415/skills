@@ -538,6 +538,7 @@
       background: var(--surface);
       box-shadow: var(--shadow-1);
       scroll-margin-top: 18px;
+      container-type: inline-size;
     }
 
     .unit-card.is-highlighted {
@@ -615,7 +616,7 @@
 
     .slide-gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       max-height: 34vh;
       max-height: 34svh;
@@ -629,15 +630,24 @@
 
     .slide-shot {
       width: 100%;
-      max-width: min(100%, 333px, 32vh);
-      max-width: min(100%, 333px, 32svh);
       min-width: 0;
       margin: 0;
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 6px;
       background: var(--surface);
-      justify-self: center;
+    }
+
+    @container (max-width: 780px) {
+      .slide-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @container (max-width: 520px) {
+      .slide-gallery {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .slide-shot img {
