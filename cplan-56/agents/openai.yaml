@@ -1,0 +1,4 @@
+interface:
+  display_name: "CPlan 5.6"
+  short_description: "Guide concise, evidence-based planning discussions"
+  default_prompt: "Use $cplan-56 to improve this planning discussion without making the plan verbose or overly strict."
