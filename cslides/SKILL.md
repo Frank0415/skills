@@ -141,6 +141,8 @@ Write a dense, source-specific explanation in `.unit-explanation`. It must stand
 
 Do not satisfy these items with generic labels followed by one vague sentence. Name the source-specific quantities, operations, visual evidence, and conclusions. Preserve the full problem-to-result chain for examples and derivations.
 
+For a dense formula, theorem, complexity, convergence, algorithm, circuit, or worked-example unit, at least one teaching point must unpack the central reasoning across as many paragraphs, equations, or substeps as the learner needs. Do not reduce a derivation to a result, an algorithm to a list of nouns, or a complexity claim to the final big-O expression. The visible explanation should make clear why the steps are valid and under which conditions the conclusion holds.
+
 ### Folded page-by-page explanation
 
 After the always-visible explanation and transition map, add one mandatory `details.page-notes` section for the unit. It contains exactly one `.page-explain[data-page-detail]` block for every page in the unit, in source order. Across the document, `data-page-detail` values must be exactly `1...N`, with no gaps or duplicates.
@@ -151,6 +153,17 @@ Every page block contains:
 2. `怎样理解`: a detailed teaching explanation of the page's purpose, reasoning, and role in the unit.
 
 Add formula reconstruction, variable definitions, visual-reading guidance, assumptions, caveats, or corrections inside the page block whenever the page needs them. For animation or progressive-reveal pages, explicitly state what changed from the preceding page and why that change matters. Title, agenda, divider, recap, and closing pages may be shorter, but still explain their role in the lecture.
+
+Do not limit a dense page to one short paragraph in each column. Use multiple paragraphs, bullets, subheadings, and `.math-display` blocks when needed. In particular:
+
+- for a formula or derivation, define the target quantity and variables, reconstruct the missing intermediate reasoning, explain the result's meaning, and state its assumptions;
+- for a convergence or complexity claim, define the error or cost being measured, explain where each factor comes from, distinguish parallel work from sequential dependency, and state when the rate does not apply;
+- for an algorithm, explain state, inputs, update order, synchronization or data dependencies, stopping condition, and the tradeoff that motivates the design;
+- for an example, carry the source values through the method to the result and interpret the result in context;
+- for a graph, table, circuit, waveform, or diagram, explain how to read the visual evidence before giving the conclusion;
+- add a small numerical or conceptual example when it materially clarifies an abstract rate, bound, or update rule, while labeling it as teaching context rather than slide content.
+
+A faithful paraphrase plus a two-sentence gloss is not enough for a page whose teaching value lies in compressed reasoning. Depth should follow the semantic load of the page, not a uniform word count.
 
 Finish each `details.page-notes` section with a concise `本单元页间主线` that connects the pages without repeating the always-visible explanation. Page notes are not an OCR archive and must not duplicate the same paragraph across pages.
 
@@ -322,7 +335,7 @@ Before delivery:
 
 1. Compare PDF page count, audit rows, `data-page` values, embedded images, and the page index; require exactly `1...N`, no duplicates, and source order.
 2. Compare PDF page count with `.page-explain[data-page-detail]`; require exactly one page-detail block for every page `1...N`, in order, with both required teaching fields.
-3. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic or repeated explanations. Read each always-visible explanation with all disclosures closed and confirm it still teaches the complete unit.
+3. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic or repeated explanations. Read each always-visible explanation with all disclosures closed and confirm it still teaches the complete unit. Sample at least one dense formula or complexity page, one algorithm or example page, and one visual page; confirm their page notes explain the full reasoning chain rather than only restating the slide.
 4. Confirm every key formula and visual is interpreted, every supplement is labeled, and no unsupported teacher intent or factual invention appears.
 5. Parse the HTML, check unique IDs and inline script syntax, and scan for unresolved `{{...}}` placeholders, malformed tags, local paths, naked TeX, and MathJax errors.
 6. Open the artifact in a real browser and inspect desktop and narrow layouts with all disclosures closed first, then with representative page notes and supplements open. Check information density, hierarchy, clipping, overlap, search, page location, zoom, responsive overflow, and print behavior. When computer-use is available, inspect screenshots directly. Do not claim browser validation if only static checks ran.

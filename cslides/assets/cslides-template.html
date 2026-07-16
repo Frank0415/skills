@@ -915,6 +915,19 @@
       margin-bottom: 0;
     }
 
+    .detail-points {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .detail-points li + li {
+      margin-top: 6px;
+    }
+
+    .detail-points strong {
+      color: var(--ink);
+    }
+
     .page-thread {
       margin: 0;
       padding: 12px 16px;
@@ -1518,7 +1531,14 @@
                 <!-- Use source-specific points; this visible section must teach the full unit while details remain closed. -->
                 <li><div><strong>本单元要回答的问题:</strong><p>{{SOURCE_SPECIFIC_EXPLANATION}}</p></div></li>
                 <li><div><strong>核心概念与条件:</strong><p>{{SOURCE_SPECIFIC_EXPLANATION}}</p></div></li>
-                <li><div><strong>关键推理或步骤:</strong><p>{{SOURCE_SPECIFIC_EXPLANATION}}</p></div></li>
+                <li>
+                  <div>
+                    <strong>关键推理或步骤:</strong>
+                    <p>{{CENTRAL_REASONING_CHAIN}}</p>
+                    <!-- Dense units continue with intermediate steps, equations, assumptions, and interpretation; do not stop at the final result. -->
+                    <p>{{WHY_THE_RESULT_FOLLOWS_AND_WHEN_IT_APPLIES}}</p>
+                  </div>
+                </li>
                 <li><div><strong>图表 / 公式怎样读:</strong><p>{{SOURCE_SPECIFIC_EXPLANATION}}</p></div></li>
                 <li><div><strong>结论与边界:</strong><p>{{SOURCE_SPECIFIC_EXPLANATION}}</p></div></li>
               </ul>
@@ -1553,6 +1573,12 @@
                     <div>
                       <h6>怎样理解</h6>
                       <p>{{DETAILED_TEACHING_EXPLANATION}}</p>
+                      <!-- Dense pages need the full reasoning chain. Keep only the applicable items and add more paragraphs or math blocks as needed. -->
+                      <ul class="detail-points">
+                        <li><strong>关键推理:</strong> {{MISSING_INTERMEDIATE_REASONING}}</li>
+                        <li><strong>条件与边界:</strong> {{ASSUMPTIONS_AND_LIMITS}}</li>
+                        <li><strong>结果怎样用:</strong> {{INTERPRETATION_OR_SMALL_EXAMPLE}}</li>
+                      </ul>
                     </div>
                   </div>
                 </section>
