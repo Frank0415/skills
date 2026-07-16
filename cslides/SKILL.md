@@ -18,10 +18,6 @@ description: Convert one course-slide PDF into a self-contained Chinese HTML stu
 
 文风遵循 `humanizer-zh` 风格。先检查该 skill 是否已安装；存在时才调用 `$humanizer-zh`，不存在时不要调用、不要报错或阻塞任务，直接执行以下内置规则：直接讲清楚，不写客套话、宣传腔、金句式总结；不硬凑三段式，不用“此外”“值得注意的是”“至关重要”等空泛连接词堆段落；技术内容保持朴素、准确、具体；句子节奏可以有变化，但不要为了“有人味”牺牲严谨性；不写“希望这对你有帮助”“当然可以”“这是一个……”这类聊天痕迹。面向第一次学这门课的学生解释，但不要把读者当成完全没有判断力的人。
 
-### 风格隔离
-
-执行本 skill 时，不调用或套用 `cchat`、`cchat-zh`、`caveman`、`caveman-compress`。即使这些 skill 已在当前任务或对话中启用，也不得把它们的极简、压缩或省略式表达用于课程 HTML、审校记录、worker prompt、judge/fix 结果或最终回复。本 skill 的中文教学写作、解释完整性和证据要求在本任务中优先；`humanizer-zh` 仍可按上文规则使用。
-
 如果原 slide 使用英文术语，推荐写法是先保留英文术语，再用中文解释。例如：“singular value 是矩阵在某个正交方向上的缩放量，不是普通特征值的同义词。”
 
 ## 一、最终交付目标
