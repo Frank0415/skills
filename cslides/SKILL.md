@@ -32,11 +32,13 @@ Do not declare completion until all of the following are true:
 2. Every page belongs to exactly one teaching unit, and units cover only continuous page ranges.
 3. Every original slide image appears once, in source order, with its page number.
 4. Complete examples, derivations, design flows, circuits, and visual progressions remain intact.
-5. Explanations are specific to the source content rather than copied OCR or template language.
-6. Visible formulas follow the MathJax contract below and render without errors or naked delimiters.
-7. The HTML is self-contained except for the allowed MathJax CDN fallback, opens directly, and has no local absolute asset paths.
-8. Search, page location, image zoom, responsive layout, and print styles work.
-9. Temporary audit, extraction, contact-sheet, and screenshot-index files are removed unless the user asked to keep them.
+5. Every page has exactly one page-detail block with a faithful Chinese restatement and a source-specific teaching explanation.
+6. Each unit's always-visible explanation is detailed enough to teach the unit without opening any folded section.
+7. Explanations are specific to the source content rather than copied OCR or template language.
+8. Visible formulas follow the MathJax contract below and render without errors or naked delimiters.
+9. The HTML is self-contained except for the allowed MathJax CDN fallback, opens directly, and has no local absolute asset paths.
+10. Search, page location, image zoom, responsive layout, and print styles work.
+11. Temporary audit, extraction, contact-sheet, and screenshot-index files are removed unless the user asked to keep them.
 
 If the PDF is encrypted, unreadable, incomplete, or cannot be visually inspected, stop and report the smallest concrete blocker. Do not substitute OCR-only work or claim visual validation that did not happen.
 
@@ -73,8 +75,8 @@ Text extraction supplies candidates; the rendered slide is authoritative for for
 
 Before writing the final HTML, create `tmp/<pdf_name>_page_audit.md` or `.txt` on disk. Keep one row per page:
 
-| Page | Screenshot | Text key | Visual evidence | Formula / diagram | Teaching role | Unit | HTML status | Fix notes |
-|---|---|---|---|---|---|---|---|---|
+| Page | Screenshot | Text key | Visual evidence | Formula / diagram | Teaching role | Unit | Image status | Detail status | Fix notes |
+|---|---|---|---|---|---|---|---|---|---|
 
 Record the page's title or role, important text, visible formula or graphic meaning, animation status, proposed unit, risks, and whether its image is embedded. Use this file to survive long runs and context compaction; do not paste it into the final HTML. Remove it at delivery unless the user requested the evidence.
 
@@ -111,19 +113,38 @@ Label supplements as background, derivation entry, model switch, diagram reading
 
 ## Writing each unit
 
-Use concise but complete bullet points rather than long essay paragraphs. Adapt the bullets to the content; do not fill a template mechanically. Explain:
+Each unit has two complementary teaching layers. Do not make the learner open a disclosure to receive the real explanation.
 
-- the question the unit answers;
-- concepts, variables, assumptions, and mechanisms;
-- the actual derivation, analysis, comparison, or example sequence;
-- how to read each important graph, table, circuit, waveform, or diagram;
-- the conclusion and the ability the learner should gain.
+### Always-visible complete explanation
+
+Write a dense, source-specific explanation in `.unit-explanation`. It must stand alone as the main lesson, not act as a teaser for the folded page notes. Use short paragraphs or substantive bullets according to the material. A normal unit often needs five to nine teaching points, but content coverage matters more than a fixed count. Include every applicable item:
+
+- the concrete question the unit answers and why it matters here;
+- definitions, variables, assumptions, units, and mechanisms;
+- the actual derivation, algorithm, comparison, design flow, or worked-example sequence;
+- intermediate reasoning that the slides compress or leave implicit;
+- how to read each important graph, table, circuit, waveform, diagram, or animation progression;
+- the meaning of the result, its conditions or limitations, and the ability the learner should gain;
+- the dependency on the previous unit and the reason the next unit follows.
+
+Do not satisfy these items with generic labels followed by one vague sentence. Name the source-specific quantities, operations, visual evidence, and conclusions. Preserve the full problem-to-result chain for examples and derivations.
+
+### Folded page-by-page explanation
+
+After the always-visible explanation and transition map, add one mandatory `details.page-notes` section for the unit. It contains exactly one `.page-explain[data-page-detail]` block for every page in the unit, in source order. Across the document, `data-page-detail` values must be exactly `1...N`, with no gaps or duplicates.
+
+Every page block contains:
+
+1. `这一页说了什么`: a faithful Chinese restatement of the page's actual content. Translate or closely paraphrase; do not paste raw OCR.
+2. `怎样理解`: a detailed teaching explanation of the page's purpose, reasoning, and role in the unit.
+
+Add formula reconstruction, variable definitions, visual-reading guidance, assumptions, caveats, or corrections inside the page block whenever the page needs them. For animation or progressive-reveal pages, explicitly state what changed from the preceding page and why that change matters. Title, agenda, divider, recap, and closing pages may be shorter, but still explain their role in the lecture.
+
+Finish each `details.page-notes` section with a concise `本单元页间主线` that connects the pages without repeating the always-visible explanation. Page notes are not an OCR archive and must not duplicate the same paragraph across pages.
 
 Write concrete transitions: what the previous unit established, what this unit adds, how pages inside the unit progress, and why the next unit follows. For an inserted application, state that it is not the mathematical next step and explain its real link to the main line.
 
-Do not create a verbose “每页贡献” or OCR-excerpt block. Page ranges, the slide gallery, page index, and internal audit provide traceability.
-
-Each unit uses this semantic structure; omit optional elements when the source does not need them:
+Each unit uses this semantic structure. The page-notes block is required; omit only the source-dependent optional elements:
 
 ```html
 <article class="unit-card" id="unit-U01" data-pages="12 13 14">
@@ -168,6 +189,22 @@ Each unit uses this semantic structure; omit optional elements when the source d
         <div class="transition-item outgoing"><strong>导向下一单元</strong><p>...</p></div>
       </div>
     </section>
+    <details class="page-notes" id="unit-U01-pages">
+      <summary>
+        <span><strong>逐页详解</strong><small>P012-P014 · 3 页</small></span>
+        <span class="detail-purpose">翻译 · 推理 · 读图</span>
+      </summary>
+      <div class="page-notes-body">
+        <section class="page-explain" data-page-detail="12">
+          <header><span class="page-chip">P012</span><h5>原始标题或页面作用</h5></header>
+          <div class="page-explain-grid">
+            <div><h6>这一页说了什么</h6><p>忠实中文转述。</p></div>
+            <div><h6>怎样理解</h6><p>结合公式、图像或上下页关系作具体讲解。</p></div>
+          </div>
+        </section>
+      </div>
+      <p class="page-thread"><strong>本单元页间主线:</strong> P012 如何推进到 P014。</p>
+    </details>
     <details class="supplement">
       <summary>上下文补足:补充主题 <span class="supplement-kind">补足类型</span></summary>
       <div class="supplement-body"><ul><li>必要且直接相关的补充。</li></ul></div>
@@ -188,7 +225,7 @@ Keep this order:
    - the lecture's knowledge flow, main line, examples, applications, and real jumps;
    - a unit route table with ID, title, pages, type, grouping reason, supplement units, Example units, and visual-focus units;
    - the central formula index with variables, conditions, purpose, unit, and source pages.
-4. **Module sections**: number, title, pages, task, transition, then ordered unit cards.
+4. **Module sections**: number, title, pages, task, transition, then ordered unit cards. Each unit includes the always-visible complete explanation and the mandatory folded page-by-page explanation.
 5. **Footer**: source PDF, counts, supplement count, coverage statement, and `内容聚合讲解 · 逻辑增强版`.
 
 Search must cover IDs, page numbers (`23`, `P23`, `P023`), titles, modules, source captions, prose, and formula keywords. Page location scrolls to the owning unit and briefly highlights it. Image zoom opens a full-screen overlay, shows the page number, closes by button or Esc, and preferably supports previous or next slide within a unit.
@@ -286,11 +323,12 @@ Print CSS hides navigation, search, zoom controls, overlays, and other interacti
 Before delivery:
 
 1. Compare PDF page count, audit rows, `data-page` values, embedded images, and the page index; require exactly `1...N`, no duplicates, and source order.
-2. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic or repeated explanations.
-3. Confirm every key formula and visual is interpreted, every supplement is labeled, and no unsupported teacher intent or factual invention appears.
-4. Parse the HTML, check unique IDs and inline script syntax, and scan for placeholders, malformed tags, local paths, naked TeX, and MathJax errors.
-5. Open the artifact and inspect desktop and narrow layouts, search, page location, zoom, responsive overflow, and print behavior. Do not claim browser validation if only static checks ran.
-6. Delete temporary work files after all checks pass.
+2. Compare PDF page count with `.page-explain[data-page-detail]`; require exactly one page-detail block for every page `1...N`, in order, with both required teaching fields.
+3. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic or repeated explanations. Read each always-visible explanation with all disclosures closed and confirm it still teaches the complete unit.
+4. Confirm every key formula and visual is interpreted, every supplement is labeled, and no unsupported teacher intent or factual invention appears.
+5. Parse the HTML, check unique IDs and inline script syntax, and scan for placeholders, malformed tags, local paths, naked TeX, and MathJax errors.
+6. Open the artifact and inspect desktop and narrow layouts, search, page location, zoom, responsive overflow, and print behavior. Do not claim browser validation if only static checks ran.
+7. Delete temporary work files after all checks pass.
 
 User-added constraints may change emphasis, language, terminology, print preferences, supplement defaults, and level of detail. They do not override page coverage, source order, complete source examples, mathematical correctness, single-file delivery, or evidence-based validation unless the user explicitly changes that invariant.
 
@@ -299,7 +337,7 @@ User-added constraints may change emphasis, language, terminology, print prefere
 Keep the chat response concise. Report:
 
 - generated HTML path or clickable link and source PDF;
-- PDF pages, modules, units, merged units, Example units, and supplement units;
+- PDF pages, modules, units, merged units, Example units, supplement units, and page-detail blocks;
 - page-coverage, formula-rendering, page-level visual inspection, and temporary-file cleanup results;
 - any verification limitation or known quality caveat.
 
