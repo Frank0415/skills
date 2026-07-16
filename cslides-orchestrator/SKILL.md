@@ -11,31 +11,38 @@ Use this skill when the user provides multiple course-slide PDFs, a directory of
 
 This skill does not write course HTML itself. It orchestrates independent Codex CLI workers. Each conversion worker receives exactly one PDF path and uses `cslides` for that PDF only.
 
+## Execution profile
+
+Use this default profile for every worker:
+
+- Maximum active workers: `3`.
+- Model: `gpt-5.6-sol`.
+- Reasoning effort: `medium`.
+
+Apply the same model and effort to convert, judge, fix, and rejudge workers. Do not mix worker profiles within one run. Only an explicit user instruction in the current request may override these defaults.
+
 ## Preflight interview
 
-Before starting workers, resolve orchestration settings with the user in a `grill-me`-style interview:
+Before starting workers, resolve concurrency with the user in a `grill-me`-style interview:
 
 - Ask one question at a time.
-- For each question, provide the recommended answer.
+- Provide the recommended answer.
 - If the user already specified an answer in the current request, do not ask it again.
-- If a setting can be discovered from the local environment, inspect it instead of asking.
+- If the user says to use defaults, use three active workers without further questions.
 
-Required questions:
+Required question:
 
 1. Ask how many active subagents the user wants.
-   - Recommended answer: `2`, because it reduces context drift and makes judge/fix feedback easier to track.
-   - This number is the total active Codex CLI worker count, including convert, judge, and fix workers.
-2. Ask which model the subagents should use.
-   - Recommended answer: use the user's CLI default model unless the user names a specific model.
-   - If the user also specifies reasoning effort, pass it through to every worker. Otherwise use the CLI default effort.
+   - Recommended and default answer: `3`.
+   - This number is the total active Codex CLI worker count, including convert, judge, fix, and rejudge workers.
 
-Do not dispatch any Codex CLI worker until these two settings are resolved, unless the user explicitly says to use defaults.
+Do not ask about model or reasoning effort unless the user explicitly requests a different profile. Do not dispatch any Codex CLI worker until concurrency is resolved, unless the user says to use defaults.
 
 When launching workers:
 
-- If the user chose a model, pass it with `-m <MODEL>`.
-- If the user chose a reasoning effort, pass it with `-c model_reasoning_effort="<EFFORT>"`.
-- Apply the same resolved model and effort to convert, judge, and fix workers unless the user explicitly gives per-role settings.
+- Pass `-m gpt-5.6-sol`.
+- Pass `-c model_reasoning_effort="medium"`.
+- If the user explicitly overrides the profile, pass the requested model and effort to every worker instead.
 
 ## Hard rules
 
@@ -43,7 +50,7 @@ When launching workers:
 - Do not create a Python, shell, or Node script that loops over PDFs and writes HTML files.
 - Do not batch multiple PDFs into one cslides prompt.
 - Do not ask one judge or fix worker to evaluate multiple PDFs.
-- Default parallelism is the value resolved in the preflight interview.
+- Keep the active worker count at the preflight-resolved limit.
 - A PDF is complete only after convert succeeds and judge returns `PASS`.
 
 ## Prerequisite check
