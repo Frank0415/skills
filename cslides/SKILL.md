@@ -44,7 +44,7 @@ Do not declare completion until all of the following are true:
 2. Every page belongs to exactly one teaching unit, and units cover only continuous page ranges.
 3. Every original slide image appears once, in source order, with its page number.
 4. Complete examples, derivations, design flows, circuits, and visual progressions remain intact.
-5. Every page has exactly one page-detail block with a faithful Chinese restatement and a source-specific teaching explanation.
+5. Every page has exactly one page-detail block with a complete line-by-line Chinese translation of the source page and a page-specific explanation.
 6. Each unit's always-visible explanation is detailed enough to teach the unit without opening any folded section.
 7. Explanations are specific to the source content rather than copied OCR or template language.
 8. Visible formulas follow the MathJax contract below and render without errors or naked delimiters.
@@ -87,8 +87,8 @@ Text extraction supplies candidates; the rendered slide is authoritative for for
 
 Before writing the final HTML, create `tmp/<pdf_name>_page_audit.md` or `.txt` on disk. Keep one row per page:
 
-| Page | Screenshot | Text key | Visual evidence | Formula / diagram | Teaching role | Unit | Image status | Detail status | Fix notes |
-|---|---|---|---|---|---|---|---|---|---|
+| Page | Screenshot | Text key | Visual evidence | Formula / diagram | Teaching role | Unit | Image status | Translation status | Explanation status | Fix notes |
+|---|---|---|---|---|---|---|---|---|---|---|
 
 Record the page's title or role, important text, visible formula or graphic meaning, animation status, proposed unit, risks, and whether its image is embedded. Use this file to survive long runs and context compaction; do not paste it into the final HTML. Remove it at delivery unless the user requested the evidence.
 
@@ -129,7 +129,9 @@ Each unit has two complementary teaching layers. Do not make the learner open a 
 
 ### Always-visible complete explanation
 
-Write a dense, source-specific explanation in `.unit-explanation`. It must stand alone as the main lesson, not act as a teaser for the folded page notes. Use short paragraphs or substantive bullets according to the material. A normal unit often needs five to nine teaching points, but content coverage matters more than a fixed count. Include every applicable item:
+Write a dense, source-specific explanation in `.unit-explanation`. It must stand alone as the main lesson, not act as a teaser for the folded page notes. Teach all slides in the unit as one integrated narrative: combine their definitions, visual evidence, formulas, intermediate reasoning, and conclusions into a coherent explanation of the shared teaching task. Do not write one shallow bullet per page or simply concatenate page summaries.
+
+Use short paragraphs or substantive bullets according to the material. A normal unit often needs five to nine teaching points, but content coverage matters more than a fixed count. Include every applicable item:
 
 - the concrete question the unit answers and why it matters here;
 - definitions, variables, assumptions, units, and mechanisms;
@@ -141,20 +143,7 @@ Write a dense, source-specific explanation in `.unit-explanation`. It must stand
 
 Do not satisfy these items with generic labels followed by one vague sentence. Name the source-specific quantities, operations, visual evidence, and conclusions. Preserve the full problem-to-result chain for examples and derivations.
 
-For a dense formula, theorem, complexity, convergence, algorithm, circuit, or worked-example unit, at least one teaching point must unpack the central reasoning across as many paragraphs, equations, or substeps as the learner needs. Do not reduce a derivation to a result, an algorithm to a list of nouns, or a complexity claim to the final big-O expression. The visible explanation should make clear why the steps are valid and under which conditions the conclusion holds.
-
-### Folded page-by-page explanation
-
-After the always-visible explanation and transition map, add one mandatory `details.page-notes` section for the unit. It contains exactly one `.page-explain[data-page-detail]` block for every page in the unit, in source order. Across the document, `data-page-detail` values must be exactly `1...N`, with no gaps or duplicates.
-
-Every page block contains:
-
-1. `这一页说了什么`: a faithful Chinese restatement of the page's actual content. Translate or closely paraphrase; do not paste raw OCR.
-2. `怎样理解`: a detailed teaching explanation of the page's purpose, reasoning, and role in the unit.
-
-Add formula reconstruction, variable definitions, visual-reading guidance, assumptions, caveats, or corrections inside the page block whenever the page needs them. For animation or progressive-reveal pages, explicitly state what changed from the preceding page and why that change matters. Title, agenda, divider, recap, and closing pages may be shorter, but still explain their role in the lecture.
-
-Do not limit a dense page to one short paragraph in each column. Use multiple paragraphs, bullets, subheadings, and `.math-display` blocks when needed. In particular:
+For dense material, put the full teaching depth here:
 
 - for a formula or derivation, define the target quantity and variables, reconstruct the missing intermediate reasoning, explain the result's meaning, and state its assumptions;
 - for a convergence or complexity claim, define the error or cost being measured, explain where each factor comes from, distinguish parallel work from sequential dependency, and state when the rate does not apply;
@@ -163,9 +152,24 @@ Do not limit a dense page to one short paragraph in each column. Use multiple pa
 - for a graph, table, circuit, waveform, or diagram, explain how to read the visual evidence before giving the conclusion;
 - add a small numerical or conceptual example when it materially clarifies an abstract rate, bound, or update rule, while labeling it as teaching context rather than slide content.
 
-A faithful paraphrase plus a two-sentence gloss is not enough for a page whose teaching value lies in compressed reasoning. Depth should follow the semantic load of the page, not a uniform word count.
+Use as many paragraphs, equations, or substeps as the learner needs. Do not reduce a derivation to a result, an algorithm to a list of nouns, or a complexity claim to the final big-O expression. The visible explanation should make clear how the pages work together, why the steps are valid, and under which conditions the conclusion holds.
 
-Finish each `details.page-notes` section with a concise `本单元页间主线` that connects the pages without repeating the always-visible explanation. Page notes are not an OCR archive and must not duplicate the same paragraph across pages.
+### Folded page-by-page explanation
+
+After the always-visible explanation and transition map, add one mandatory `details.page-notes` section for the unit. It contains exactly one `.page-explain[data-page-detail]` block for every page in the unit, in source order. Across the document, `data-page-detail` values must be exactly `1...N`, with no gaps or duplicates.
+
+Every page block contains:
+
+1. `原页逐句翻译`: a complete Chinese translation of the source page, in the source reading order and hierarchy.
+2. `本页解释`: a page-specific explanation of terminology, formulas, visuals, assumptions, and the page's role in the unit.
+
+The translation is a source-fidelity layer, not a summary or paraphrase. Translate every visible title, subtitle, sentence, bullet, nested bullet, table cell, axis label, legend, caption, callout, annotation, and code comment that carries meaning. Preserve formulas, variables, code, proper nouns, and useful English technical terms exactly while translating their surrounding prose. Preserve list and table structure so the learner can map each translated line back to the slide. Do not merge several source bullets into one sentence, omit repeated text on an animation page, or add teaching claims inside the translation. Reconstruct text from the rendered page rather than copying damaged OCR. If a fragment remains unreadable after visual inspection, mark the smallest fragment as `原页文字不清` instead of guessing.
+
+After the complete translation, write `本页解释`. Clarify the page's terms, formula notation, diagram-reading order, assumptions, caveats, corrections, and contribution to the unit. For animation or progressive-reveal pages, state what changed from the preceding page and why it matters. Title, agenda, divider, recap, and closing pages may need only a short explanation, but their translation must still be complete.
+
+Keep cross-page synthesis and the full derivation or algorithm walkthrough in the always-visible `完整讲解`; do not bury the real lesson in page notes or duplicate the same long explanation on several pages. The page-specific explanation may be detailed, but it stays anchored to what this page contributes.
+
+Finish each `details.page-notes` section with a concise `本单元页间主线` that connects the pages without repeating the always-visible explanation. Reconstruct the translation from source evidence rather than pasting raw OCR, and do not duplicate the same explanatory paragraph across pages.
 
 Write concrete transitions: what the previous unit established, what this unit adds, how pages inside the unit progress, and why the next unit follows. For an inserted application, state that it is not the mathematical next step and explain its real link to the main line.
 
@@ -217,14 +221,20 @@ Each unit uses this semantic structure. The page-notes block is required; omit o
     <details class="page-notes" id="unit-U01-pages">
       <summary>
         <span><strong>逐页详解</strong><small>P012-P014 · 3 页</small></span>
-        <span class="detail-purpose">翻译 · 推理 · 读图</span>
+        <span class="detail-purpose">逐句翻译 · 本页解释</span>
       </summary>
       <div class="page-notes-body">
         <section class="page-explain" data-page-detail="12">
           <header><span class="page-chip">P012</span><h5>原始标题或页面作用</h5></header>
           <div class="page-explain-grid">
-            <div><h6>这一页说了什么</h6><p>忠实中文转述。</p></div>
-            <div><h6>怎样理解</h6><p>结合公式、图像或上下页关系作具体讲解。</p></div>
+            <div class="page-translation" data-page-translation="12">
+              <h6>原页逐句翻译</h6>
+              <p>按原页顺序和层级完整翻译标题、正文、项目符号、图表标签与注释。</p>
+            </div>
+            <div class="page-interpretation">
+              <h6>本页解释</h6>
+              <p>解释本页术语、公式、视觉信息及其在单元中的作用。</p>
+            </div>
           </div>
         </section>
       </div>
@@ -334,8 +344,8 @@ Print CSS hides navigation, search, zoom controls, overlays, and other interacti
 Before delivery:
 
 1. Compare PDF page count, audit rows, `data-page` values, embedded images, and the page index; require exactly `1...N`, no duplicates, and source order.
-2. Compare PDF page count with `.page-explain[data-page-detail]`; require exactly one page-detail block for every page `1...N`, in order, with both required teaching fields.
-3. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic or repeated explanations. Read each always-visible explanation with all disclosures closed and confirm it still teaches the complete unit. Sample at least one dense formula or complexity page, one algorithm or example page, and one visual page; confirm their page notes explain the full reasoning chain rather than only restating the slide.
+2. Compare PDF page count with `.page-explain[data-page-detail]` and `.page-translation[data-page-translation]`; require exactly one of each for every page `1...N`, in order. Compare every source page against its translation and confirm no meaningful source line, label, bullet, table cell, caption, or annotation was summarized away or omitted.
+3. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic or repeated explanations. Read each always-visible explanation with all disclosures closed and confirm it integrates the grouped slides into a complete lesson. Sample at least one dense formula or complexity unit, one algorithm or example unit, and one visual unit; confirm the full reasoning chain appears in `完整讲解` rather than being deferred to page notes.
 4. Confirm every key formula and visual is interpreted, every supplement is labeled, and no unsupported teacher intent or factual invention appears.
 5. Parse the HTML, check unique IDs and inline script syntax, and scan for unresolved `{{...}}` placeholders, malformed tags, local paths, naked TeX, and MathJax errors.
 6. Open the artifact in a real browser and inspect desktop and narrow layouts with all disclosures closed first, then with representative page notes and supplements open. Check information density, hierarchy, clipping, overlap, search, page location, zoom, responsive overflow, and print behavior. When computer-use is available, inspect screenshots directly. Do not claim browser validation if only static checks ran.

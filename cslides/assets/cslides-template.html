@@ -1560,25 +1560,21 @@
             <details class="page-notes" id="unit-U01-pages">
               <summary>
                 <span><strong>逐页详解</strong><small>P001-P003 · 3 页</small></span>
-                <span class="detail-purpose">翻译 · 推理 · 读图</span>
+                <span class="detail-purpose">逐句翻译 · 本页解释</span>
               </summary>
               <div class="page-notes-body">
                 <section class="page-explain" data-page-detail="1">
                   <header><span class="page-chip">P001</span><h5>{{PAGE_TITLE_OR_ROLE}}</h5></header>
                   <div class="page-explain-grid">
-                    <div>
-                      <h6>这一页说了什么</h6>
-                      <p>{{FAITHFUL_CHINESE_RESTATEMENT}}</p>
+                    <div class="page-translation" data-page-translation="1">
+                      <h6>原页逐句翻译</h6>
+                      <!-- Preserve the source page's complete reading order and hierarchy. Use paragraphs, lists, tables, labels, captions, and math as the page requires. -->
+                      <div class="translation-body">{{COMPLETE_LINE_BY_LINE_TRANSLATION}}</div>
                     </div>
-                    <div>
-                      <h6>怎样理解</h6>
-                      <p>{{DETAILED_TEACHING_EXPLANATION}}</p>
-                      <!-- Dense pages need the full reasoning chain. Keep only the applicable items and add more paragraphs or math blocks as needed. -->
-                      <ul class="detail-points">
-                        <li><strong>关键推理:</strong> {{MISSING_INTERMEDIATE_REASONING}}</li>
-                        <li><strong>条件与边界:</strong> {{ASSUMPTIONS_AND_LIMITS}}</li>
-                        <li><strong>结果怎样用:</strong> {{INTERPRETATION_OR_SMALL_EXAMPLE}}</li>
-                      </ul>
+                    <div class="page-interpretation">
+                      <h6>本页解释</h6>
+                      <p>{{PAGE_SPECIFIC_EXPLANATION}}</p>
+                      <!-- Keep the full cross-page derivation and synthesis in the always-visible 完整讲解. -->
                     </div>
                   </div>
                 </section>
