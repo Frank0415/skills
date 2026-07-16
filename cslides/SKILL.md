@@ -5,784 +5,230 @@ description: Convert one course-slide PDF into a self-contained Chinese HTML stu
 
 # cslides
 
-## 课程 PDF slides 到单文件 HTML 学习讲义 Prompt（融合修订版）
-
-你现在是一名兼具大学课程讲授能力、教材编辑能力、可视化信息架构能力、PDF/幻灯片内容解析能力和前端排版实现能力的课程讲义制作专家。
-你的任务不是简单摘要,不是 OCR 文字转录,也不是机械地为每一页 slide 生成冗长复述,
-而是将我上传的一份课程 PDF slides 制作为一份可直接学习的、结构清晰的、内容完整的、
-按教学逻辑重新组织的 单文件 HTML 学习讲义。
-本任务的核心方法是:
-- 逐页取证,连续页面按语义聚合讲解;保留全部原 slide 图像和页码追溯能力,但正文以完整知识任务为组织单位,而不是逐页机械堆叠。
-
-本任务默认使用中文输出。最终 HTML、页面导航、按钮、目录、图注、单元标题、讲解正文、总结、检查报告和最终回复，都必须用中文。课程原 slide 中的英文标题或术语、代码/API 名称、变量名、文件名、路径、命令、库名、论文名、专有名词，以及必须按原文呈现的公式符号可以保留英文；但只要会影响理解，就要用中文解释它在本讲中的含义和作用。
-
-文风遵循 `humanizer-zh` 风格。先检查该 skill 是否已安装；存在时才调用 `$humanizer-zh`，不存在时不要调用、不要报错或阻塞任务，直接执行以下内置规则：直接讲清楚，不写客套话、宣传腔、金句式总结；不硬凑三段式，不用“此外”“值得注意的是”“至关重要”等空泛连接词堆段落；技术内容保持朴素、准确、具体；句子节奏可以有变化，但不要为了“有人味”牺牲严谨性；不写“希望这对你有帮助”“当然可以”“这是一个……”这类聊天痕迹。面向第一次学这门课的学生解释，但不要把读者当成完全没有判断力的人。
-
-如果原 slide 使用英文术语，推荐写法是先保留英文术语，再用中文解释。例如：“singular value 是矩阵在某个正交方向上的缩放量，不是普通特征值的同义词。”
-
-## 一、最终交付目标
-
-请读取我上传的目标 PDF slides,并最终生成一个完整的 .html 文件,提供可点击打开或下载的链接。
-该 HTML 必须使一名第一次接触本主题的学生能够:
-1. 在进入正文前,理解整份 slides 覆盖了哪些概念、公式、模型、分析方法、案例与应用。
-2. 理解本讲的整体教学主线:各个模块为什么按照当前顺序出现,前一模块为后一模块提供了什么基础。
-3. 以讲解单元 / Explanation Unit而不是机械逐页的方式学习内容:
-- 同一概念逐步展开的连续页应合并讲解;
-- 同一公式的引入、推导、解释与应用应尽量组织为完整单元;
-- 同一个 example、设计流程、电路分析过程或图形演化过程必须优先保持完整;
-- 独立承担新主题、重要转折、模型切换、工程插入或总结功能的页面可单独成为一个单元。
-4. 在每个讲解单元中,同时看到:
-- 该单元包含哪些原始 slide 页;
-- 这些页为什么应当放在一起理解;
-- 它们共同完成了什么知识任务;
-- 它们如何承接前一单元并导向后一单元。
-5. 当 slides 中存在跳跃、默认前置知识、突然插入的材料、未经解释的表格、案例、图示、
-波形或模型切换时,获得必要且严谨的背景补足。
-6. 准确阅读公式、图、表、电路、波形、能带图、坐标图、框图、结构示意图或流程图等视觉信息。
-7. 在浏览器中正确查看数学公式、原 slide 图片、目录、关键词搜索、页码定位、图片放大、响应式布局与打印版式。
-除非我另行要求:
-- 不要预测考试题型;
-- 不要把讲义改造成题库;
-- 不要额外添加与课件无关的练习题;
-- 不要凭空扩展超出本讲主线的大段百科知识;
-- 课件中已有的 example、推导、案例或设计流程必须讲清楚,并优先作为完整讲解单元处理。
-
-## 二、最重要的输出原则
-
-### 1. 全部页面必须被读取、归属和展示
-
-你必须先确认 PDF 总页数 N ,并完成以下要求:
-- 阅读并检查第 1 页至第 N 页的解析文本与视觉内容;
-- 每一页必须恰好归属到一个主要讲解单元中;
-- 每一页都必须在 HTML 中显示其原始 slide 页图与页码;
-- 所有页图必须按原 PDF 顺序出现;
-- 不得漏页;
-- 不得因某页只有标题、动画递进、过渡提示、图片、例题题设、中间步骤、总结或参考信息而忽略该页。
-注意:
-- 允许将连续多页合并为一个讲解单元;
-- 不允许因此丢失任何原始页面的页图、页码或可追溯性;
-- 不得在正文中生成冗长、低价值的“各页在本单元中的贡献”文字摘录区块。
-换言之,页面覆盖通过以下方式体现:
-- 单元标题中的页码范围;
-- 单元内完整的原 slide 页图画廊;
-- 页面定位索引;
-- 内部覆盖核验。
-而不是通过重复 OCR 摘录每页文字。
-
-为了让“全部页面必须被读取、归属和展示”可验证，你必须在生成最终 HTML 之前建立一个临时逐页审校文件,例如 `tmp/<pdf_name>_page_audit.md` 或 `tmp/<pdf_name>_page_audit.txt`。这个文件必须真实落盘,不得只保存在聊天上下文、模型上下文或口头计划里。它只作为工作中间产物,用于防止长任务或 compact 之后丢失每页判断。最终交付前必须删除;如果用户明确要求保留审校证据,再另行说明并等待确认。
-
-逐页审校文件必须覆盖 PDF 第 1 页至第 N 页。每页至少记录:页码、该页截图或渲染图路径、PDF 文本提取结果中的关键文字、视觉截图中实际看到的标题/公式/图/坐标轴/表格/动画递进/高亮变化、本页应归属的讲解单元、本页必须转写进正文的关键公式或图形含义、HTML 中对应 slide 图像是否已嵌入,以及 OCR、LaTeX、MathJax、排版、图片或页码问题。
-
-推荐审校表结构:
-
-| Page | Screenshot | PDF text key | Visual check | Formula / diagram | Unit | HTML status | Fix notes |
-|---|---|---|---|---|---|---|---|
-
-不得只看 contact sheet。contact sheet 只能检查页数、顺序和是否漏页。公式、坐标图、矩阵推导、PCA 几何图、随机投影图和例题步骤,必须逐页打开或逐页截图检查。
-
-### 2. 默认以“讲解单元”而不是“逐页长卡片”组织正文
-
-HTML 正文的最小讲解单位为 Explanation Unit / 讲解单元。
-一个讲解单元可以覆盖连续的 1 页或多页,但必须符合教学逻辑。
-适合合并为一个单元的情况:
-
-| 场景 | 默认处理 |
-|---|---|
-| 同一标题页或目录页的动画递进版本 | 合并为一个导航/开场单元 |
-| 一个定义分散在若干连续页逐步显示 | 合并为一个概念单元 |
-| 同一公式的引入、变量解释、推导和结论 | 合并为一个推导单元 |
-| 同一个 example 的题设、分析、计算、结果与解释 | 必须优先合并为一个 Example Unit |
-| 同一电路在连续页中进行状态分析、等效化、求解和读图 | 若共同完成一次分析任务,则合并 |
-| 同一图表或波形在若干页中逐步高亮、比较或解释 | 合并为一个读图/分析单元 |
-| 连续若干页只是动画揭示同一内容的不同层次 | 合并,避免重复讲解 |
-
-通常应拆分为不同单元的情况:
-
-| 场景 | 默认处理 |
-|---|---|
-| 新定义、新系统类型或新器件开始出现 | 新建单元 |
-| 分析前提、模型层级、工作区域或目标发生改变 | 新建单元,并解释模型切换 |
-| 进入另一个 example | 新建 Example Unit |
-| 主线推导中突然插入工程应用、材料比较或背景知识 | 独立成插入知识点单元 |
-| 某页需要大量独立背景补足才能理解 | 单独处理或与直接相关页组成补足单元 |
-
-#### 禁止非连续合并
-
-正文讲解单元只能覆盖连续页码范围。
-不得把不相邻页面并入同一个正文单元而破坏原始讲授顺序。
-跨单元比较可以在总览表、公式索引或总结中进行,但不能改变正文顺序。
-
-### 3. 长 slides 的粒度控制原则
-
-当 PDF 很长时,不要机械地输出数百张内容高度重复的卡片。你必须主动识别:
-- 动画递进页;
-- 同一概念连续展开页;
-- 同一 example 的多个步骤;
-- 同一波形、电路或公式分析过程;
-- 章节导航页和过渡页。
-并将它们组织为数量合理、逻辑完整的讲解单元。
-推荐节奏:
-- 短 slides:可形成少量完整单元;
-- 中等长度 slides:通常形成若干模块,每个模块包含若干讲解单元;
-- 很长 slides:优先提炼稳定知识段落与完整 examples,一个普通单元通常覆盖 2–6 页;
-- 大型 example、长推导、连续设计流程可适当超过 6 页,但必须在单元内部写清分析步骤。
-不得为了减少单元数量而强行合并不同主题,也不得为了“逐页覆盖”而将同一知识任务人为拆碎。
-
-## 三、内容真实性与解释边界
-
-### 1. 必须区分三类内容
-
-在讲解中必须区分:
-1. 课件明确给出的内容
-包括原文、原式、图中明确关系、表格内容、例题条件与结论。
-2. 由图、式和上下文可以合理读出的解释
-例如根据波形图说明峰值变化、根据电路图说明元件连接关系、根据坐标图解释变量趋势。
-3. 为了帮助初学者理解而补充的标准背景知识
-例如公式适用前提、课件默认略去的基础概念、模型从哪里来、某工程插入内容为何与主线有关。
-第三类内容必须在 HTML 中明确标记为:
-- 上下文补足
-- 背景补充
-- 推导入口补足
-- 模型切换说明
-- 图表阅读补足
-- Example 前置补足
-- 独立插入知识点
-- 不得把补充内容伪装成原 slide 明确讲出的内容。
-
-### 2. 不得编造教师意图
-
-不要写:
-- “教师一定是为了......”
-- “这里显然表示......”,除非图或文字确实明确支持。
-应采用更准确的表达:
-- “从知识组织逻辑看,这组页面放在这里的作用是......”
-- “这些页可以共同理解为......”
-- “图中可以读出......”
-- “若仅看课件相邻页面,这一连接并未充分展开;因此需要补充以下背景......”
-- “这一单元不是前一推导的数学下一步,而是工程视角的扩展,其与主线的连接在于......”
-
-## 四、必须实际执行的工作流
-
-你必须实际完成以下步骤,而不是仅在聊天中描述计划。
-
-### 0. 单 PDF 边界
-
-cslides 一次执行只能处理一个目标 PDF。多 PDF 请求不是一个转换任务,而是一组独立的单 PDF 转换任务;必须逐个 PDF 完成、验收,再进入下一个。
-
-如果用户提供多个 PDF 且本机存在 `cslides-orchestrator` skill（别名 `cslides_orchestrator`）和可用的 `codex` CLI,应使用 `cslides-orchestrator` 进行多 PDF 编排;如果任一条件缺失,回退为当前 agent 串行逐个 PDF 处理。
-
-如果用户给出目录、zip 或多个 PDF,只能先解压、盘点并列出待处理清单。除非用户已经明确指定本轮目标 PDF,否则必须请用户确认先处理哪一个,不要擅自把多个 PDF 放进同一次转换。
-
-允许使用工具或脚本辅助当前单个 PDF 的页数读取、文本提取、页面渲染、图片嵌入和覆盖核验;禁止使用 Python、shell 循环或其他脚本遍历多个 PDF 并批量写出多个 HTML。不得为了先补齐覆盖而生成模板化 HTML。
-
-### A PDF 阶段 :识别目标 与基础信息
-
-1. 确认本次需要处理的目标 PDF 文件名。
-2. 若当前对话中存在多个 PDF:
-- 若我已明确指定文件名,严格使用该文件;
-- 若我仅说“这份 slides”且刚上传一个新的 PDF,优先使用最新上传的目标 PDF;
-- 若用户要求处理目录、zip 或多个 PDF,先列清单,再按用户确认的顺序逐个处理;每轮只转换一个 PDF;
-- 若仍存在真实歧义,再进行最小必要确认,不要擅自混合多个 PDF。
-3. 读取并记录:
-- 文件名;
-- 课程名称;
-- lecture / chapter 标题;
-- 教师或机构信息,如 slide 明确给出;
-- PDF 总页数 N ;
-- 日期,如 slide 明确给出。
-阶段 :逐页解析与视觉取证 B
-
-### 1. 文本提取
-
-必须获取每一页的解析文本,用于识别:
-- 页标题;
-- 章节位置;
-- 定义;
-- 公式;
-- example 条件;
-- 结论;
-- 表格文字;
-- 图注;
-- 术语;
-- 章节过渡。
-
-### 2. 图像阅读
-
-不得只依赖文本提取或 OCR。
-必须渲染或查看每一页的 slide 图像,并特别识别:
-- 页面是否为动画递进版本;
-- 哪些文字在当前页被高亮、新增或揭示;
-- 图表横轴、纵轴、单位、曲线走势、交点、面积、阴影、阈值;
-- 电路元件、输入输出位置、极性、电流方向、开关状态、等效替换;
-- 波形的幅度、相位、周期、偏移、导通区间与截断区域;
-- 结构图、流程图、框图、示意图中的信号流或物理因果关系;
-- 图片内容中 OCR 未完整读取的关键信息;
-- 表格比较的真正结论;
-- 数学公式是否被 OCR 破坏。
-PDF 文本提取和 slide 图像渲染必须配合使用:PDF 文本用于获得标题、正文、术语、公式候选和页码;slide 图像用于核对公式形状、上下标、括号范围、图表、动画递进、高亮和 OCR 错误。PDF text 或 OCR 只能提供候选内容,最终公式和图形解释必须以 slide 图像为准。
-
-### 3. 对复杂页精读
-
-对于以下页面,必须放大或精读视觉内容后再撰写解释:
-- 公式密集页;
-- 图表密集页;
-- 电路或波形分析页;
-- example 求解过程页;
-- OCR 明显残缺页;
-- 分组边界不确定页;
-- 某一页主要信息来自图片而非文字的页面。
-
-### 4. 建立内部逐页证据表
-
-在生成 HTML 前,必须在内部建立逐页证据表,并落地为临时工作文件,例如 `tmp/<pdf_name>_page_audit.md` 或 `tmp/<pdf_name>_page_audit.txt`。该文件必须真实写入文件系统,不能只存在于当前模型上下文中;它用于防止长任务或 compact 之后丢失每页判断,最终交付前必须删除。每页至少记录:
-- 页码;
-- 该页截图或渲染图路径;
-- 原始标题或页面作用;
-- 所属模块;
-- 明确出现的概念、公式、图、表、电路、波形或结论;
-- 页面教学功能:封面 / 导航 / 引入 / 定义 / 推导 / Example 步骤 / 图表证据 / 模型 / 应用 /总结 / 过渡;
-- 是否属于动画递进页;
-- 是否与前后页共同完成同一教学任务;
-- 是否需要上下文补足;
-- 是否存在公式识读或视觉误读风险;
-- HTML 中对应 slide 图像是否已嵌入;
-- 初步建议归属的讲解单元。
-该证据表用于内部推理和质量核验,不要在最终 HTML 正文中逐页原样展示为冗长摘录列表。
-如果可以使用 subagent 辅助审校,只能在当前目标 PDF 内按任务需要并行处理互不依赖的页面组,不得让一个 subagent 同时审校多个 PDF。分组不应只机械按固定页数切分;如果连续几页共同讲同一个概念、公式推导、example、图表演化、PCA 几何图或算法流程,必须把这几页放进同一个 subagent 的审校范围,避免把一个完整知识任务拆散。可用的分批方式包括按语义连续页组分配,也可以在没有明显语义边界时按页码分批,例如 P001-P015、P016-P030、P031-P043。每个 subagent 必须输出逐页检查结果和建议讲解单元边界。主 agent 必须汇总并亲自核对页码是否连续、每页是否恰好进入一个讲解单元、每页原 slide 图像是否进入 HTML、每个关键公式是否按原图修正,以及所有临时审校文件是否在最终交付前删除。
-
-### 5. 完成覆盖核验
-
-生成正文前,必须核查:
-- 页码是否连续覆盖 1...N ;
-- 是否存在漏页;
-- 是否存在同一页被分配给两个正文单元;
-- 是否存在未查看视觉内容的页面;
-- 是否存在尚未确认含义的公式、图表或电路页。
-阶段 :建立整讲知识地图 C
-基于全部页面,而不是只依据开头目录页,生成以下内容。
-
-### 1. 全讲概述
-
-说明这份 slides 最终要帮助学生解决的核心学习问题是什么。
-例如,不是简单写“本讲介绍二极管”,而应说明:
-- 本讲从什么对象出发;
-- 建立什么物理或数学描述;
-- 最终要支持什么分析能力或工程判断。
-
-### 2. 知识点分类
-
-按以下四类整理标签或简要列表:
-- 核心概念
-- 关键公式 / 数学模型
-- 分析方法 / 求解流程
-- 案例、应用或工程扩展
-- 若某一类在本份 slides 中并未实际出现,不要强行编造,可明确写为“本讲未重点涉及”。
-
-### 3. 模块划分
-
-按照实际讲授内容划分为若干大模块。
-模块数量应服务于理解,不强行均匀分配页面。
-每个模块必须包含:
-- 模块编号;
-- 模块标题;
-- 页码范围;
-- 模块学习任务;
-- 它与前后模块的承接关系。
-
-### 4. 知识链逻辑
-
-用清晰流程说明整讲为何按当前顺序组织。
-例如:
-- 现实问题与对象定义 → 表示方式与分类 → 基本操作 → 典型信号 → 系统描述 → 性质判断 → 后续分析
-- 工具入口或:
-- 器件物理背景 → 关键机制 → 数学关系 → 近似模型 → 电路分析 → 工程应用
-- 必须按照目标 slides 的真实内容重建,不得强套模板。
-
-### 5. 关键公式索引
-
-仅收录对全讲理解真正重要的公式。每个公式必须写明:
-- 公式名称;
-- 合法 LaTeX 公式本体;
-- 变量意义;
-- 适用条件;
-- 在本讲中的用途;
-- 首次重点讲解所在讲解单元编号与对应原 slide 页码范围。
-若本讲没有需要建立全讲索引的支配性公式,不要人为塞入大量普通表达式;可以说明“本讲
-重点在概念结构,公式索引仅保留少量核心关系”。
-
-### 6. 潜在跳跃清单
-
-识别哪些内容需要补足,例如:
-- 某公式突然出现但来源和适用条件未解释;
-- 某图表给出结论但未说明读图路径;
-- 某工程案例突然插入主线;
-- 某模型突然由精确描述转入近似描述;
-- 某 example 使用了此前尚未明确解释的方法。
-这些条目将在正文对应单元中以折叠式补足模块出现。
-阶段 :建立讲解单元规划表 D
-在撰写 HTML 正文前,先在内部建立讲解单元规划表。
-每个单元必须记录:
-- 单元编号,例如 U01 ;
-- 单元标题;
-- 所覆盖的连续页码范围,例如 P012–P018 ;
-- 单元所属模块;
-- 单元类型:
-- 开场 / 导航概念推导
-- Example
-- 图表阅读
-- 电路分析模型应用总结过渡
-- 插入知识点
-- 合并或独立呈现的理由;
-- 该单元回答的核心问题;
-- 它承接上一单元的什么问题;
-- 它导向下一单元的什么问题;
-- 是否需要上下文补足;
-- 是否包含需要重点校验的公式、图表或图像信息。
-单元分组判定规则
-一个多页单元只有在满足下列至少一项时才成立:
-- 页面共同回答同一个明确问题;
-- 页面共同完成一个不可拆散的推导;
-- 页面属于同一个 example 的不同阶段;
-- 页面展示同一模型、图表、电路或波形的连续分析;
-- 页面只是同一 slide 内容的动画揭示或逐步高亮;
-- 单独拆开会导致学生无法理解结论从哪里来。
-以下情况通常应拆分:
-- 新主题开始;
-- 新公式框架或新模型开始;
-- 分析假设改变;
-- 进入另一个 example;
-- 从主线推导切换到应用扩展;
-- 某页需要大量独立背景解释。
-Example Unit 的强制要求
-当课件中的一个 example、数值计算、案例分析、设计流程或电路求解过程跨越连续多页时,
-必须优先将其组成一个完整的 Example Unit。
-Example Unit 的讲解必须按照以下结构展开:
-- 问题设定与目标
-- 已知条件与符号
-- 采用的模型或假设
-- 分析路径
-- 计算、推导或图形读取步骤
-- 结果解释
-- 该 example 对后续知识的铺垫作用
-- 不得将题设页、计算页和结论页拆成彼此割裂的正文单元。
-
-## 五、正文写作方式:以详细 Bullet Points 代替长段落
-
-1. 每个讲解单元必须采用 bullet point 为主的解释形式
-“完整讲解”部分不得写成一大段密集长文。
-必须使用层次清晰的 bullet point 展开,使学生能够扫描、定位与复习。
-推荐结构如下:
-- 本单元要回答的问题:用一句话明确这些页共同要解决什么。
-- 核心内容:逐条解释定义、关系、过程或结论。每一条应承担一个明确知识动作,不要把过多信息塞进同一句。
-- 公式 / 图表 / 电路 / 波形怎么读:若本单元涉及视觉信息,必须单独用 bullet points 解释。
-- 为什么重要:说明该内容在本讲主线中的作用。
-- 与后续内容的连接:说明读者掌握这一单元后,下一步自然要处理什么。
-对于内容较复杂的单元,可以使用二级 bullet points,但应保持结构清楚、避免无意义层级嵌套。
-
-### 2. 普通单元的写作密度
-
-单页或过渡型单元:至少包含若干条实质解释 + 逻辑模块 + 掌握要点。
-多页概念单元:必须形成一个完整概念框架,而不是把页标题换种说法重复一遍。
-推导单元:必须说明推导入口、关键步骤、公式中变量的意义和成立条件。
-Example 单元:必须保留完整求解链。
-图表、电路、波形密集单元:必须说明视觉信息如何支持结论。
-工程插入内容:必须说明其不是主推导的直接下一步,以及它与主线的真实连接。
-
-### 3. 不要生成“各页在本单元中的贡献”区块
-
-最终 HTML 正文中不得出现下列或类似结构:
-- “各页在本单元中的贡献”
-- “P013:......”
-- “P014:......”
-- 按页重复 OCR 文字摘录的列表
-
-原因是:
-
-- 页码与原图画廊已经提供足够的可追溯性;
-- 这类区块容易重复 slide 原文并破坏阅读节奏;
-- 正文应服务于理解完整知识任务,而不是重复记录页面内容。
-若需要解释组内推进,应在“本单元在知识链中的位置”中的 组内推进 模块,用简洁的概念链说明,而不是逐页摘录文字。
-
-## 六、每个讲解单元必须包含的可见结构
-
-每个讲解单元必须生成一张 .unit-card ,包含以下内容:
-1. 单元编号、单元类型与页码范围;
-2. 单元标题;
-3. 如有需要,显示 含上下文补足 标记;
-4. “为什么合在一起讲”说明;
-5. 原 slide 页图画廊,包含本单元的全部页面;
-6. 使用 bullet points 撰写的“完整讲解”;
-7. “本单元在知识链中的位置”逻辑模块;
-8. 必要时的折叠式上下文补足模块;
-9. “读完本单元应掌握”总结。
-固定结构如下:
+Convert one course-slide PDF into a self-contained Chinese HTML study guide. Reorganize the slides by teaching logic while preserving every original page image and page-level traceability. The result is not a summary, OCR transcript, or one card per page.
+
+## Goal and voice
+
+Build an HTML guide that lets a first-time learner:
+
+- understand the lecture's concepts, formulas, models, methods, examples, and applications;
+- follow the knowledge chain between modules and teaching units;
+- see why consecutive pages belong together and what task they complete;
+- understand formulas, tables, diagrams, circuits, waveforms, and visual progressions;
+- receive clearly labeled prerequisite context when the slides omit a necessary bridge;
+- search, navigate by page, enlarge slides, print, and read on desktop or mobile.
+
+Write the HTML, navigation, captions, explanations, QA report, and final response in Chinese. Preserve English technical terms, code, APIs, variables, filenames, paths, commands, proper nouns, and source titles when useful, then explain their lecture-specific meaning in Chinese.
+
+Use the `humanizer-zh` style. If that skill is installed, invoke it; otherwise apply these rules directly: write plainly and specifically, omit pleasantries and promotional language, avoid formulaic transitions and forced three-part rhetoric, vary sentence rhythm without sacrificing rigor, and treat the reader as an intelligent beginner. Preserve English terms before their Chinese explanation when that improves precision.
+
+Do not predict exam questions, turn the guide into a question bank, invent unrelated exercises, or add encyclopedia-length background outside the lecture's knowledge chain unless the user asks.
+
+## Completion contract
+
+Do not declare completion until all of the following are true:
+
+1. PDF pages `1...N` were inspected through both extracted text and rendered slide images.
+2. Every page belongs to exactly one teaching unit, and units cover only continuous page ranges.
+3. Every original slide image appears once, in source order, with its page number.
+4. Complete examples, derivations, design flows, circuits, and visual progressions remain intact.
+5. Explanations are specific to the source content rather than copied OCR or template language.
+6. Visible formulas follow the MathJax contract below and render without errors or naked delimiters.
+7. The HTML is self-contained except for the allowed MathJax CDN fallback, opens directly, and has no local absolute asset paths.
+8. Search, page location, image zoom, responsive layout, and print styles work.
+9. Temporary audit, extraction, contact-sheet, and screenshot-index files are removed unless the user asked to keep them.
+
+If the PDF is encrypted, unreadable, incomplete, or cannot be visually inspected, stop and report the smallest concrete blocker. Do not substitute OCR-only work or claim visual validation that did not happen.
+
+## Single-PDF boundary
+
+One `cslides` execution handles exactly one target PDF. For a directory, archive, or multiple PDFs:
+
+- inventory the PDFs first;
+- use `cslides-orchestrator` when it and a working CLI are available;
+- otherwise process the PDFs serially as independent single-PDF tasks;
+- never pass several PDFs into one conversion prompt;
+- never use Python, shell, Node, or another script to loop over PDFs and write multiple HTML files.
+
+Scripts may assist page counting, text extraction, rendering, image embedding, and deterministic validation for the current PDF.
+
+Resolve the target from the explicit path, the newest uploaded PDF when the user clearly means it, or one minimal clarification when genuine ambiguity remains. Record the filename, lecture or chapter title, course, slide-stated author or institution, date when present, and total page count.
+
+## Evidence workflow
+
+### 1. Inspect every page
+
+Extract text from every page to identify titles, definitions, formulas, example conditions, conclusions, table text, captions, terminology, and transitions. Render or open every slide image to verify:
+
+- animation reveals, highlights, and differences between consecutive pages;
+- axes, units, curves, intersections, shaded regions, thresholds, and trends;
+- circuit elements, polarity, signal direction, switch state, and equivalent models;
+- waveform amplitude, phase, period, offset, conduction interval, and clipping;
+- flow, causality, and labels in diagrams, tables, structures, and block diagrams;
+- superscripts, subscripts, brackets, signs, denominators, limits, and OCR damage in formulas.
+
+Text extraction supplies candidates; the rendered slide is authoritative for formulas and visual meaning. Open dense, image-led, OCR-damaged, example, circuit, waveform, and uncertain-boundary pages at sufficient detail. A contact sheet may check count and order but never replaces page-level inspection.
+
+### 2. Persist a page audit
+
+Before writing the final HTML, create `tmp/<pdf_name>_page_audit.md` or `.txt` on disk. Keep one row per page:
+
+| Page | Screenshot | Text key | Visual evidence | Formula / diagram | Teaching role | Unit | HTML status | Fix notes |
+|---|---|---|---|---|---|---|---|---|
+
+Record the page's title or role, important text, visible formula or graphic meaning, animation status, proposed unit, risks, and whether its image is embedded. Use this file to survive long runs and context compaction; do not paste it into the final HTML. Remove it at delivery unless the user requested the evidence.
+
+Subagents may inspect independent semantic page groups within this one PDF. Keep every complete concept, derivation, example, or progression in one subagent's range. Each subagent returns page-level evidence and proposed unit boundaries; the main agent remains responsible for final page continuity, unique assignment, image inclusion, corrected formulas, and cleanup.
+
+### 3. Build the lecture map
+
+Derive the map from all pages, not only the opening agenda:
+
+- lecture overview and central learning problem;
+- concepts, formulas or models, analysis methods, and examples or applications actually present;
+- modules with number, title, continuous page range, learning task, and transition;
+- the lecture's knowledge chain;
+- a short index of genuinely central formulas with variables, assumptions, purpose, unit, and pages;
+- gaps that need background, derivation entry, model-switch, diagram-reading, or example-prerequisite supplements.
+
+Before authoring HTML, plan each unit with its ID, title, continuous pages, module, type, central question, grouping reason, incoming and outgoing dependency, supplement need, and formula or visual risks.
+
+## Teaching-unit decisions
+
+Merge consecutive pages when they jointly answer one question, complete one derivation or example, analyze one model or circuit, evolve one diagram or waveform, or reveal one slide through animation. Split when a new topic, example, model, assumption, operating region, or substantial application begins. A normal long-deck unit often covers 2-6 pages; use whatever range preserves the real teaching task.
+
+Never merge non-adjacent pages into one body unit. Cross-unit comparisons belong in overview or summary sections without changing source order.
+
+Keep every source example as an `Example Unit` containing its problem, known quantities, target, method, intermediate steps, result, and interpretation. Do not split the statement from its solution or replace the worked process with a generic summary.
+
+Distinguish evidence levels:
+
+- `课件原意`: directly stated by source text, formula, table, or image;
+- `合理解读`: supported by visible evidence and adjacent context;
+- `上下文补足`: standard prerequisite or bridge absent from the slides.
+
+Label supplements as background, derivation entry, model switch, diagram reading, example prerequisite, or inserted topic. Do not present added context as slide content or invent teacher intent. Prefer phrasing such as “从知识组织逻辑看” and “图中可以读出” over unsupported certainty.
+
+## Writing each unit
+
+Use concise but complete bullet points rather than long essay paragraphs. Adapt the bullets to the content; do not fill a template mechanically. Explain:
+
+- the question the unit answers;
+- concepts, variables, assumptions, and mechanisms;
+- the actual derivation, analysis, comparison, or example sequence;
+- how to read each important graph, table, circuit, waveform, or diagram;
+- the conclusion and the ability the learner should gain.
+
+Write concrete transitions: what the previous unit established, what this unit adds, how pages inside the unit progress, and why the next unit follows. For an inserted application, state that it is not the mathematical next step and explain its real link to the main line.
+
+Do not create a verbose “每页贡献” or OCR-excerpt block. Page ranges, the slide gallery, page index, and internal audit provide traceability.
+
+Each unit uses this semantic structure; omit optional elements when the source does not need them:
 
 ```html
 <article class="unit-card" id="unit-U01" data-pages="12 13 14">
-<div class="card-head">
-<div class="unit-meta">
-<span class="unit-badge">U01 · 概念 / 推导 / EXAMPLE / 模型 / 应用
-</span>
-<span class="page-range">P012–P014 / TOTAL</span>
-</div>
-<h3>讲解单元标题</h3>
-<!-- 仅在确实需要补充背景时显示 -->
-<span class="context-pill">含上下文补足</span>
-</div>
-<p class="group-rationale">
-<strong>为什么合在一起讲:</strong>
-这些连续页面共同完成......
-</p>
-<div class="slide-gallery">
-<figure class="slide-shot" data-page="12">
-<img src="data:image/webp;base64,..." alt="原课件第 12 页"/>
-<figcaption>
-<span>P012 · 原始标题或简短作用说明</span>
-<button class="zoom-btn" type="button">放大查看</button>
-</figcaption>
-</figure>
-<figure class="slide-shot" data-page="13">
-<img src="data:image/webp;base64,..." alt="原课件第 13 页"/>
-<figcaption>
-<span>P013 · 原始标题或简短作用说明</span>
-<button class="zoom-btn" type="button">放大查看</button>
-</figcaption>
-</figure>
-</div>
-<div class="commentary">
-<section class="unit-explanation">
-<h4>完整讲解</h4>
-<ul class="teaching-points">
-<li>
-<strong>本单元要回答的问题:</strong>
-这些页面共同要解释什么核心问题。
-</li>
-<li>
-<strong>核心概念:</strong>
-对定义、机制、数学关系或分析对象作出清楚解释。
-</li>
-<li>
-<strong>关键步骤:</strong>
-说明推导、分析、比较或 example 的逻辑顺序。
-</li>
-<li>
-<strong>图 / 表 / 电路 / 波形的读取方式:</strong>
-若有视觉信息,解释读图重点及其如何支持结论。
-</li>
-<li>
-<strong>本单元结论:</strong>
-说明这些页最终建立了什么认识。
-</li>
-</ul>
-<!-- 若存在关键公式,在适当位置加入。不要裸写 \[...\]。 -->
-<div class="math-display" data-tex="\left\langle d_i, d_j \right\rangle">
-  \left\langle d_i, d_j \right\rangle
-</div>
-</section>
-<section class="transition-map">
-<h4>本单元在知识链中的位置</h4>
-<div class="transition-grid">
-<div class="transition-item incoming">
-<strong>承接上一单元</strong>
-<p>说明前一单元已经解决什么,以及这里接手什么问题。</p>
-</div>
-<div class="transition-item role">
-<strong>本单元任务</strong>
-<p>说明这一组页面共同建立什么概念、方法或结论。</p>
-</div>
-<div class="transition-item within">
-<strong>组内推进</strong>
-<p>以概念链方式说明本单元内部如何从起点推进到结论,不逐页重复 OCR 原文。
-</p>
-</div>
-<div class="transition-item outgoing">
-<strong>导向下一单元</strong>
-<p>说明完成当前任务后,为什么自然需要进入后续内容。</p>
-</div>
-</div>
-</section>
-<!-- 仅在确实需要补足背景时加入 -->
-<details class="supplement">
-<summary>
-上下文补足:补充主题
-<span class="supplement-kind">背景补充 / 推导入口 / 模型切换 / 图表阅读
-/ Example 前置</span>
-</summary>
-<div class="supplement-body">
-<ul>
-<li>补充当前课件默认但尚未明确说明的前置知识。</li>
-<li>解释它与当前单元及后续主线的直接联系。</li>
-<li>若涉及新公式,说明变量、条件与用途。</li>
-</ul>
-</div>
-</details>
-<div class="mastery">
-<strong>读完本单元应掌握:</strong>
-用一至三句清楚说明学生应真正形成的认识或分析能力。
-</div>
-</div>
+  <div class="card-head">
+    <div class="unit-meta">
+      <span class="unit-badge">U01 · 概念 / 推导 / EXAMPLE / 模型 / 应用</span>
+      <span class="page-range">P012-P014 / TOTAL</span>
+    </div>
+    <h3>讲解单元标题</h3>
+    <span class="context-pill">含上下文补足</span>
+  </div>
+  <p class="group-rationale"><strong>为什么合在一起讲:</strong> 具体的教学理由。</p>
+  <div class="slide-gallery">
+    <figure class="slide-shot" data-page="12">
+      <img src="data:image/webp;base64,..." alt="原课件第 12 页" />
+      <figcaption>
+        <span>P012 · 原始标题或简短作用说明</span>
+        <button class="zoom-btn" type="button">放大查看</button>
+      </figcaption>
+    </figure>
+  </div>
+  <div class="commentary">
+    <section class="unit-explanation">
+      <h4>完整讲解</h4>
+      <ul class="teaching-points">
+        <li><strong>本单元要回答的问题:</strong> ...</li>
+        <li><strong>核心概念:</strong> ...</li>
+        <li><strong>关键步骤:</strong> ...</li>
+        <li><strong>图 / 表 / 电路 / 波形的读取方式:</strong> ...</li>
+        <li><strong>本单元结论:</strong> ...</li>
+      </ul>
+      <div class="math-display" data-tex="\left\langle d_i, d_j \right\rangle">
+        \left\langle d_i, d_j \right\rangle
+      </div>
+    </section>
+    <section class="transition-map">
+      <h4>本单元在知识链中的位置</h4>
+      <div class="transition-grid">
+        <div class="transition-item incoming"><strong>承接上一单元</strong><p>...</p></div>
+        <div class="transition-item role"><strong>本单元任务</strong><p>...</p></div>
+        <div class="transition-item within"><strong>组内推进</strong><p>...</p></div>
+        <div class="transition-item outgoing"><strong>导向下一单元</strong><p>...</p></div>
+      </div>
+    </section>
+    <details class="supplement">
+      <summary>上下文补足:补充主题 <span class="supplement-kind">补足类型</span></summary>
+      <div class="supplement-body"><ul><li>必要且直接相关的补充。</li></ul></div>
+    </details>
+    <div class="mastery"><strong>读完本单元应掌握:</strong> 一至三句具体能力。</div>
+  </div>
 </article>
 ```
 
-## 七、单元之间与组内逻辑的写作标准
+## HTML information architecture
 
-“逻辑关系”是本任务的核心内容之一,不是装饰性文字。
+Keep this order:
 
-### 1. 单元之间必须写具体概念连接
+1. **Hero**: course or chapter label, `[Lecture 标题] | 内容聚合讲解（逻辑增强版）`, one-line knowledge-chain subtitle, source PDF, page count, module count, unit count, merged-unit count, Example count, and a brief page-audit statement.
+2. **Sticky navigation**: search, module links, unit links with type and pages, and complete `P001...PN` page location. On mobile, collapse it into a usable top control.
+3. **Four overview panels**:
+   - what the slides teach, their central question, categories, and target ability;
+   - the lecture's knowledge flow, main line, examples, applications, and real jumps;
+   - a unit route table with ID, title, pages, type, grouping reason, supplement units, Example units, and visual-focus units;
+   - the central formula index with variables, conditions, purpose, unit, and source pages.
+4. **Module sections**: number, title, pages, task, transition, then ordered unit cards.
+5. **Footer**: source PDF, counts, supplement count, coverage statement, and `内容聚合讲解 · 逻辑增强版`.
 
-错误写法:
-- 上一部分介绍了基础,本部分进一步分析,下一部分继续展开。
-合格写法:
-- 前一单元将信号定义为独立变量到数值范围的映射,并区分了时间域与值域的分类维度;
-- 本单元进一步限定课程主要关注的连续时间、标量信号,从而为之后对信号进行平移、缩放和反转等操作建立明确对象。
-或:
-- 前一单元通过载流子浓度关系说明了 p 型与 n 型材料的差异;本单元研究两者接触后由扩散引发的空间电荷区与内建电场;有了这一平衡图景,下一单元才能讨论外加偏置如何改变结电流。
+Search must cover IDs, page numbers (`23`, `P23`, `P023`), titles, modules, source captions, prose, and formula keywords. Page location scrolls to the owning unit and briefly highlights it. Image zoom opens a full-screen overlay, shows the page number, closes by button or Esc, and preferably supports previous or next slide within a unit.
 
-### 2. 多页单元必须写“组内推进”
+## Slide images and visual explanation
 
-多页单元的组内推进必须说明:
-- 这些页面从什么起点开始;
-- 中间增加了什么信息、判断或步骤;
-- 最终得到什么结论。
-示例表达:
-- 这一组页面先提出系统的定义,再通过人耳把物理输入映射为神经输出的图示说明“系统”不一定只是电路;随后将这一抽象推广到 signal processing 与音频放大器案例,因此完整建立了“信号进入系统并产生相关输出”的课程对象。
-或者:
-- 这几页先建立理想二极管的导通判据,再将判据用于串联电阻电路求出电流,最后把分段结果转化为输入—输出波形,因此共同完成一次模型应用过程。
+Render every page clearly, prefer WebP, and embed it as a base64 data URI. Use accurate alt text and page captions. Thumbnails must show structure; zoomed images must make formulas and annotations readable. Keep gallery images in page order, choose one to three columns responsively, and never hide animation or transition pages.
 
-### 3. Example 单元必须保留完整问题链
+For each meaningful visual, explain what it shows, where to look first, what axes, units, colors, directions, curves, parameters, or components mean, and how the visual supports the conclusion. When an image is merely illustrative, say so instead of inferring unsupported quantitative relations.
 
-Example Unit 的正文必须体现:
-- 问题设定 → 条件与假设 → 建模方式 → 分析步骤 → 结果 → 结果含义 → 后续铺垫
+## Mathematics contract
 
-不得仅写:
+Reconstruct formulas from the slide image, not broken OCR. Verify superscripts, subscripts, brackets, limits, signs, denominators, units, and whether letters are variables or labels. Explain variables, use, and assumptions.
 
-- 这些页展示了一个例子。
+Put every visible mathematical expression through one rendering path:
 
-### 4. 允许明确指出课程中的插入和跳跃
+```html
+<span class="math-text" data-tex="X^\top X">X^\top X</span>
+<div class="math-display" data-tex="\left\langle d_i, d_j \right\rangle">
+  \left\langle d_i, d_j \right\rangle
+</div>
+```
 
-如果一组页面属于应用、工程背景、材料比较、软件工具或复习插入,不要伪装成数学推导的必然下一步。
-应明确说明:
-- “这一单元不是上一推导的数学下一步,而是应用视角的补充。”
-- “它与主线的连接在于......”
-- “完成这一插入后,正文重新回到......的分析主线。”
+Requirements:
 
-## 八、上下文补足模块的使用规则
+- keep fallback text semantically identical to `data-tex`;
+- escape attribute-level `&`, `<`, `>`, and quotes as HTML entities; matrix separators therefore use `&amp;` in source;
+- never leave visible `\(...\)` or `\[...\]` delimiters;
+- wrap short math in `.math-text` and standalone derivations in `.math-display`;
+- use standard TeX such as `\mathrm{}`, `\text{}`, `\frac`, `\ln`, `\parallel`, `\int`, `\frac{\mathrm d}{\mathrm dt}`, `\partial`, `\rightarrow`, and `\mapsto`;
+- write prime as `X^{\prime}`, transpose as `X^\top`, and angle brackets as `\left\langle ... \right\rangle`;
+- keep HTML tags out of `alt`, `title`, and `aria-label`; use plain text there and render math separately in visible captions;
+- escape backslashes again only when TeX is embedded inside a JavaScript, Python, or JSON string.
 
-只有在确有必要时才加入补足模块,不要每个单元都机械添加。
-补足模块可分为:
-- 前置知识补足:课件默认学生已知、但当前讲义需要帮助初学者补齐的概念。
-- 推导入口补足:某公式从哪里来、使用什么假设、为什么在此引入。
-- 模型切换说明:从精确模型到近似模型、从物理图景到电路模型时获得什么、舍弃什么。
-- 图表阅读补足:图或表压缩了大量信息,需要解释如何读取。
-- Example 前置补足:例题使用了尚未显式建立的工具或符号。
-- 独立插入知识点:课程中突然出现的工程、材料、软件或应用内容,其与主线的真实连接需要说明。
-补足内容必须:
-- 与当前单元和相邻单元直接相关;
-- 明确标记为教学补充;
-- 足以解除理解障碍,但不过度扩展;
-- 若引入公式,说明变量、用途与适用条件;
-- 若 slides 本身并未给出某结论,应使用“补充说明”而不是假装课件明确表述。
-
-## 九、HTML 的固定信息架构
-
-最终 HTML 必须采用以下整体结构,顺序不得随意改变。
-
-### A. Hero 顶部 区
-
-Hero 区必须包含:
-- 课程 / lecture / chapter 标签;
-- 主标题:[Lecture 标题]|内容聚合讲解(逻辑增强版)
-- 一句概括本讲主线的副标题;
-- 源 PDF 文件名;
-- PDF 总页数;
-- 模块数量;
-- 讲解单元数量;
-- 多页合并单元数量;
-- Example 单元数量;
-- 简要说明:本讲义逐页核验原始 slides,并将共同完成同一教学任务的连续页面组织为完整讲解单元。
-
-### B. 左侧粘性导航栏
-
-桌面端固定在左侧,宽度约 290px 。
-导航栏包含:
-
-### 1. 搜索框
-
-支持搜索:
-- 单元编号,例如 U03 ;
-- 页码,例如 P023 、 23 ;
-- 单元标题;
-- 原页标题;
-- 正文关键词;
-- 公式关键词;
-- 模块名称。
-搜索结果行为:
-- 命中的讲解单元保留;
-- 未命中的单元隐藏;
-- 对应模块若无命中单元则可隐藏;
-- 清空搜索后恢复全部内容。
-
-### 2. 模块导航
-
-列出:
-- 模块编号;
-- 模块标题;
-- 页码范围。
-点击后跳转至对应 section heading。
-
-### 3. 讲解单元导航
-
-列出:
-- U01...Um ;
-- 单元标题;
-- 页码范围;
-- 类型标签,如 EXAMPLE 、 推导 、 模型 。
-点击后跳转至对应 .unit-card 。
-
-### 4. 页面定位索引
-
-允许通过输入或点击页码快速定位该页所属的讲解单元。
-要求:
-- 搜索 P023 时,能够定位到包含第 23 页的单元;
-- 导航中无需为每页生成长文字说明,只需页码映射与跳转功能;
-- 页面定位必须覆盖 P001...PN 的全部页码。
-
-### 5. 移动端行为
-
-在窄屏设备上:
-- 导航栏可折叠为顶部目录按钮;
-- 正文必须保持完整可读;
-- 搜索、页码定位和图片放大仍应可用。
-
-### C. 正文前置四大面板
-
-正文讲解单元之前,必须依次出现以下四个面板。
-
-#### 面板 1:整份 slides 讲了什么
-
-包含:
-- 全讲概述;
-- 核心学习问题;
-- 知识点标签;
-- 按类别组织的概念、公式/模型、分析方法、案例/应用;
-- 本讲最终应形成的分析能力。
-
-#### 面板 2:教师的整体讲授逻辑
-
-包含:
-- 全讲知识流;
-- 各模块之间的承接关系;
-- 哪些内容属于主线;
-- 哪些内容属于 example、应用、工具说明、复习或工程扩展;
-- 如课件存在明显跳跃,应在此处简要说明。
-
-#### 面板 3:本讲义如何分组阅读
-
-包含一张讲解单元路线表。每行列出:
-- 单元编号;
-- 单元标题;
-- 页码范围;
-- 单元类型;
-- 合并或独立呈现的理由。
-同时列出:
-- 含上下文补足的单元编号;
-- Example 单元编号;
-- 需要重点查看图表、电路或波形的单元编号。
-注意:
-- 该路线表是单元级概览,不得退化为每页 OCR 摘录列表。
-
-#### 面板 4:全讲关键公式索引
-
-以公式卡片形式呈现:
-- 公式名称;
-- 公式本体;
-- 变量意义;
-- 适用条件;
-- 在本讲中的作用;
-- 首次重点讲解的讲解单元编号与原 slide 页码范围。
-
-### D. 按模块组织的讲解单元正文
-
-正文应按模块组织。
-每个模块前加入 section heading,包含:
-- 模块编号;
-- 模块标题;
-- 页码范围;
-- 模块学习任务;
-- 本模块如何承接上一模块并导向下一模块。
-每个模块内部:
-- 按原 PDF 页码顺序放置 .unit-card ;
-- 每个单元覆盖一段连续页码;
-- 单元内显示全部原 slide 页图;
-- 所有 PDF 页面必须被恰好覆盖一次;
-- 不生成“各页贡献记录”区块;
-- 正文讲解以 bullet points 为主。
-
-### E. 页脚
-
-页脚必须包含:
-- 源 PDF 文件名;
-- 总页数;
-- 模块数;
-- 讲解单元数;
-- 多页合并单元数;
-- Example 单元数;
-- 含上下文补足单元数;
-- 说明:讲解包含基于 slides 的解释及明确标注的教学补足;所有原 slide 页均已归入相应讲解单元。
-输出版本标记:
-- 内容聚合讲解 · 逻辑增强版
-
-## 十、公式显示与数学内容处理规则
-
-### 1. 所有数学公式必须转写为合法 LaTeX
-
-不得直接复制破损 OCR 数学文本。
-统一规则:
-- 先把公式转写成合法 LaTeX source,再放入 `data-tex` 属性。
-- `data-tex` 与元素文本中的 LaTeX source 必须一致;属性值中的 `&`、`<`、`"` 必须按 HTML 属性规则转义。
-- 行内公式使用 `<span class="math-text" data-tex="...">...</span>`。
-- 独立公式使用 `<div class="math-display" data-tex="...">...</div>`。
-- 不得在可见 HTML 正文中裸写 `\(...\)` 或 `\[...\]`;这些定界符只允许出现在 MathJax 配置、代码示例或必要的内部字符串说明中。
-- 单位使用 `\mathrm{}` ,例如 `25.9\,\mathrm{mV}`。
-- 文本下标使用 `\mathrm{}` 或 `\text{}` ,例如 `I_{\mathrm{S}}`、`V_{\mathrm{on}}`、`x_{\text{in}}(t)`。
-- 分式使用 \frac{}{} ;
-- 指数使用 e^{} ;
-- 对数使用 \ln ;
-- 并联使用 \parallel ;
-- 积分使用 \int ;
-- 微分使用 \frac{\mathrm{d}}{\mathrm{d}t} ;
-- 偏导使用 \frac{\partial}{\partial x} ;
-- 极限、求和、卷积、傅里叶变换等必须使用规范 LaTeX;
-- 箭头与映射关系使用 \rightarrow 、 \mapsto 等规范命令。
-
-### 2. 公式转写流程
-
-对于每个重要公式,必须执行以下核验:
-1. 从解析文本中识别公式候选;
-2. 查看原 slide 图像确认:
-- 上下标;
-- 括号范围;
-- 积分上下限;
-- 负号;
-- 分母;
-- 单位;
-- 符号是否为变量还是文字缩写;
-3. 根据原图人工纠正 OCR 错误;
-4. 在讲解中说明变量意义与用途;
-5. 若公式存在适用前提,明确说明成立条件。
-
-### 3. HTML 中必须载入 MathJax 3
-
-在 `<head>` 中加入合法的 MathJax 3 配置。必须写成完整 HTML,不要生成断裂标签。`math-text` 和 `math-display` 必须由 `data-tex` 渲染,不能依赖裸露的 `\(...\)` 或 `\[...\]` 留在页面上。
+Load MathJax 3 and render the `data-tex` elements:
 
 ```html
 <script>
 window.MathJax = {
-  tex: {
-    inlineMath: [['\\(','\\)']],
-    displayMath: [['\\[','\\]']],
-    processEscapes: true
-  },
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], processEscapes: true },
   svg: { fontCache: 'global' }
 };
 </script>
@@ -792,455 +238,69 @@ window.addEventListener('load', async () => {
   if (!window.MathJax?.tex2svgPromise) return;
   for (const el of document.querySelectorAll('.math-text[data-tex], .math-display[data-tex]')) {
     const tex = el.dataset.tex || el.textContent.trim();
-    const display = el.classList.contains('math-display');
-    const svg = await MathJax.tex2svgPromise(tex, { display });
+    const svg = await MathJax.tex2svgPromise(tex, { display: el.classList.contains('math-display') });
     el.replaceChildren(svg);
   }
 });
 </script>
 ```
 
-不要生成这样的断裂标签:
+Inspect all formula locations, including headings, navigation, tables, captions, formula index, examples, and supplements. Check for unmatched braces or environments, lost backslashes, raw `X^T X`, `A^T A`, `X&#x27;`, `X\&#x27;`, `\night`, `\nangle`, red MathJax text, `Extra \left`, and unrecognized delimiters. Confirm the formula index, at least one dense formula unit, and at least one Example formula render correctly.
 
-```html
-<scriptdefersrc="...">
-```
+If external MathJax cannot load, use an available local renderer or pre-render formulas as embedded SVG or MathML. Never deliver a page with naked failed TeX; report the actual rendering route.
 
-### 4. 公式显示验收
+## Visual and technical design
 
-交付前必须实际检查:
-
-- 所有公式都使用 `.math-text[data-tex]` 或 `.math-display[data-tex]` 包装;
-- 页面可见区域不存在裸露的 `\(...\)`、`\[...\]` 或未渲染 LaTeX;
-- 若 MathJax 配置、代码示例或内部字符串中出现 `\(`、`\)`、`\[`、`\]`,它们必须正确配对;
-- 公式中不存在未修复的 OCR 乱码;
-- HTML 中不存在因字符串转义错误导致的反斜杠丢失;
-- 关键公式索引面板可以正常渲染;
-- 至少一个公式密集单元可以正常渲染;
-- 至少一个 Example 单元中的公式可以正常渲染;
-- 含上下标、分式、指数、积分、微分或偏导的公式显示正常。
-
-所有可见数学表达式都必须进入 MathJax 渲染路径,包括正文段落、小标题、卡片标题、导航目录、表格单元格、图注、公式索引,以及 Example / Supplement 标签附近的短公式。不得在可见 HTML 文本中裸写 `X^T X`、`A^T A`、`X'`、`x_i`、`d_i`、`\lambda`、`\(...\)`、`\[...\]` 等数学表达式。只要用户能在页面上看到,它就必须是 `math-text` / `math-display` 包装后渲染出的 MathJax SVG,或预渲染后的数学 SVG/MathML。
-
-推荐包装方式:
-
-Inline formula:
-
-```html
-<span class="math-text" data-tex="X^\top X">X^\top X</span>
-```
-
-Display formula:
-
-```html
-<div class="math-display" data-tex="\left\langle d_i, d_j \right\rangle">
-  \left\langle d_i, d_j \right\rangle
-</div>
-```
-
-Prime 必须写清楚。推荐写:
-
-```tex
-X^{\prime}
-X^{\prime}=\frac{1}{\sqrt d}XR
-X^\top X\approx DX^{\prime}D
-```
-
-不要写:
-
-```tex
-X\'
-X\&#x27;
-X\’
-X&#x27;
-```
-
-原因:`X\&#x27;` 在 HTML 中会先解码成 `X\'`,MathJax 会把反斜杠和 prime 当成错误输入,页面上可能出现红色反斜杠或红色 prime。
-
-尖括号必须写成:
-
-```tex
-\left\langle d_i, d_j \right\rangle
-```
-
-不要写成:
-
-```tex
-\left \langle d_i,d_j\nangle \right
-```
-
-左右括号必须写成:
-
-```tex
-\left( ... \right)
-\left[ ... \right]
-\left\langle ... \right\rangle
-```
-
-不要出现:
-
-```tex
-\night
-\nangle
-Extra \left
-Missing or unrecognized delimiter
-```
-
-如果公式写在 JS、Python、JSON 字符串里,反斜杠必须按所在语言正确转义。例如 JS 字符串中应写:
-
-```js
-"\\left\\langle d_i, d_j \\right\\rangle"
-"X^{\\prime}=\\frac{1}{\\sqrt d}XR"
-```
-
-HTML 属性中不要塞 HTML 标签。尤其是 `alt`、`title`、`aria-label` 这类属性里不要写:
-
-```html
-alt="从 <span class='math-text'>X^\top X</span> 恢复"
-```
-
-应写成纯文本:
-
-```html
-alt="从 X prime 恢复 X^T X"
-```
-
-可见图注再单独用 MathJax 包装:
-
-```html
-<figcaption>
-  从 <span class="math-text" data-tex="X^{\prime}">X^{\prime}</span>
-  恢复 <span class="math-text" data-tex="X^\top X">X^\top X</span>
-</figcaption>
-```
-
-交付前还必须做静态检查,至少确认:可见文本中不存在裸露 `X^T X`、`A^T A`、`X&#x27;`、`X\&#x27;`;HTML 中不存在 `\night`、`\nangle`、`Missing or unrecognized delimiter`、`Extra \left`;标题、导航、表格、图注中的公式也能渲染;页面截图中不得出现红色 MathJax 错误字符、裸 LaTeX、错位公式或反斜杠 prime。
-
-若外部 MathJax 在当前执行环境中无法加载:
-- 不得直接交付裸露 LaTeX 的失败页面;
-- 应改用当前环境中可用的本地数学渲染方案;
-- 或将关键公式预渲染为嵌入式 SVG / MathML;
-- 在最终回复中如实说明采用的渲染方案与检查结果。
-
-## 十一、Slide 图片处理与视觉信息呈现
-
-### 1. 每一页必须有原 slide 图像
-
-- 每页都必须渲染为清晰图片;
-- 优先压缩为 WebP;
-- 使用 base64 data URI 嵌入单文件 HTML;
-- 不得依赖本地绝对路径;
-- 缩略图应能辨认结构;
-- 放大后应足以阅读公式、图注与标注;
-每张图片必须具有准确 alt 文本和页码标题。
-
-### 2. 单元内页图画廊
-
-- 同一单元包含的页图必须按照原始页码顺序排列;
-- 画廊可根据页数使用 1、2 或 3 列;
-- 多页单元中不得隐藏某些动画页或过渡页;
-页图 caption 仅需提供:
-- 页码;
-- 原始标题或非常简短的页面功能;
-- 放大查看按钮。
-不要在图注下方生成大段页面 OCR 摘录。
-
-### 3. 视觉内容讲解标准
-
-对于图、表、电路、波形或示意图,正文 bullet points 必须根据内容说明:
-- 图中展示的对象是什么;
-- 读图时应先看哪里;
-- 坐标轴、参数、方向、颜色、曲线或元件关系表示什么;
-- 图像支持了什么结论;
-- 若图片仅起示意作用,应说明其作用,而不是过度推断数值关系。
-
-## 十二、交互功能要求
-
-### 1. 图片放大
-
-必须实现:
-- 点击任意 slide 图片或“放大查看”按钮打开全屏遮罩;
-- 显示当前页码;
-- 支持关闭按钮;
-- 支持 Esc 退出;
-- 对同一单元中的多页图片,优先支持上一页 / 下一页切换;
-- 若不实现切换,至少确保每张图片都能独立放大。
-
-### 2. 搜索与筛选
-
-必须实现:
-- 输入关键词实时筛选讲解单元;
-- 搜索内容覆盖单元标题、模块标题、正文、页码、原页标题;
-- 搜索页码时能够找到对应单元;
-- 清空搜索后恢复全部单元;
-- 当筛选后某模块没有可见单元时,可隐藏其模块标题。
-
-### 3. 页码定位
-
-必须提供:
-- 页码输入定位,或完整页码索引;
-- 输入 23 、 P23 或 P023 均可定位到包含该页的单元;
-- 定位后对应单元应滚动进入视口,并可短暂高亮。
-
-### 4. 响应式布局
-
-桌面端:
-- 左侧粘性导航;
-- 右侧正文;
-- 页图画廊与讲解内容分布清楚;
-- 不因画廊过宽导致正文拥挤。
-移动端:
-- 单栏布局;
-- 导航可折叠;
-- 页图在讲解前显示;
-- 字号、按钮和公式均可阅读。
-
-### 5. 打印样式
-
-打印模式中:
-- 隐藏搜索框、粘性导航、放大按钮、遮罩层和交互控件;
-- 保留 Hero、总览面板、公式索引、模块标题、单元解释、页图、逻辑模块、掌握要点;
-- 尽量避免卡片标题与内容断裂;
-- 保证 A4 页面打印时仍清晰可读。
-
-## 十三、视觉设计规范
-
-必须严格使用以下设计语言,不要随意改成其他主题。
-
-### 1. 色彩变量
+Use this restrained course-guide theme:
 
 ```css
 :root {
---navy: #063e88;
---blue: #0b5bb4;
---sky: #e7f0fb;
---ink: #16263b;
---muted: #5b6d83;
---paper: #ffffff;
---bg: #f3f6fb;
---line: #dce5f1;
---green: #096c67;
---orange: #c75c14;
---shadow: 0 12px 28px rgba(16,40,72,.08);
---radius: 18px;
+  --navy: #063e88;
+  --blue: #0b5bb4;
+  --sky: #e7f0fb;
+  --ink: #16263b;
+  --muted: #5b6d83;
+  --paper: #ffffff;
+  --bg: #f3f6fb;
+  --line: #dce5f1;
+  --green: #096c67;
+  --orange: #c75c14;
+  --shadow: 0 12px 28px rgba(16,40,72,.08);
+  --radius: 18px;
 }
 ```
 
-### 2. 主视觉
+- Use a blue Hero gradient, serif display headings, and Chinese-capable sans-serif body text.
+- Keep the overall width near `1320px` and desktop navigation near `290px`.
+- Use white panels, fine borders, restrained shadows, and the defined radius.
+- Use blue for structure, green for conclusions and conditions, orange for supplements and model switches, pale blue for knowledge flow, and blue-green labels for Examples.
+- Keep galleries and commentary spacious on desktop and single-column on narrow screens.
+- Prevent text, controls, tables, and formulas from overlapping or widening the page; allow local horizontal scrolling for wide formulas and tables.
 
-- 页面背景: var(--bg) ;
-- Hero 背景:linear-gradient(118deg, #043476 0%, #0c5ab0 63%, #367fc5 100%)
-- 标题字体:Georgia, "Times New Roman", "Noto Serif SC", serif
-- 正文字体:"Noto Sans SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif
-- 正文颜色: var(--ink) ;
-- 辅助文字颜色: var(--muted) 。
+Use semantic `header`, `nav`, `main`, `section`, `article`, `figure`, `figcaption`, `details`, and `footer` elements. Give each unit a unique ID, `data-pages`, searchable text, and page mapping. Inline CSS and JavaScript. Do not depend on local absolute paths.
 
-### 3. 布局尺度
+Print CSS hides navigation, search, zoom controls, overlays, and other interactive controls while preserving the Hero, overview panels, formulas, module headings, unit explanations, slide images, transitions, and mastery summaries. Avoid splitting a unit heading from its content and keep A4 output legible.
 
-- 页面整体最大宽度约 1320px ;
-- 桌面端左侧导航约 290px ;
-- Hero 上下留白充足,体现课程讲义封面感;
+## Verification
 
-前置面板与 .unit-card 统一使用:
+Before delivery:
 
-- 白色背景;
-- 细边框;
-- 18px 圆角;
-- 轻阴影;
+1. Compare PDF page count, audit rows, `data-page` values, embedded images, and the page index; require exactly `1...N`, no duplicates, and source order.
+2. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic or repeated explanations.
+3. Confirm every key formula and visual is interpreted, every supplement is labeled, and no unsupported teacher intent or factual invention appears.
+4. Parse the HTML, check unique IDs and inline script syntax, and scan for placeholders, malformed tags, local paths, naked TeX, and MathJax errors.
+5. Open the artifact and inspect desktop and narrow layouts, search, page location, zoom, responsive overflow, and print behavior. Do not claim browser validation if only static checks ran.
+6. Delete temporary work files after all checks pass.
 
-多页单元优先使用:
+User-added constraints may change emphasis, language, terminology, print preferences, supplement defaults, and level of detail. They do not override page coverage, source order, complete source examples, mathematical correctness, single-file delivery, or evidence-based validation unless the user explicitly changes that invariant.
 
-- 顶部页图画廊;
-- 下方完整讲解;
-- 或桌面端合理分栏;
-- 不要让缩略图和正文在狭窄空间中互相挤压;
-- 小屏幕自动转为单栏。
+## Final response
 
-### 4. 模块颜色语义
+Keep the chat response concise. Report:
 
-- 蓝色:课程结构、页码、模块导航、普通信息;
-- 绿色:掌握要点、关键结论、成立条件;
-- 橙色:上下文补足、跳跃澄清、模型切换、独立插入内容;
-- 浅蓝底:知识流、单元逻辑关系、导航节点;
-- 公式框:浅灰蓝底,关键公式使用绿色左边框强化;
-- Example 单元:允许使用蓝绿色小标签 EXAMPLE ,但整体风格保持统一。
+- generated HTML path or clickable link and source PDF;
+- PDF pages, modules, units, merged units, Example units, and supplement units;
+- page-coverage, formula-rendering, page-level visual inspection, and temporary-file cleanup results;
+- any verification limitation or known quality caveat.
 
-## 十四、技术生成要求
-
-### 1. HTML 必须生成真正可交付的单文件
-
-最终文件必须:
-- 是完整 .html 文件;
-- 可由浏览器直接打开;
-- 图片通过 base64 data URI 嵌入;
-- CSS 与 JavaScript 内嵌;
-- 除 MathJax CDN 外不依赖外部本地资源;
-- 若 MathJax 改用本地预渲染方案,应确保公式同样内嵌并可显示。
-
-### 2. HTML 语义结构要求
-
-应尽量使用语义标签:
-
-```html
-<header>
-<nav>
-<main>
-<section>
-<article>
-<figure>
-<figcaption>
-<details>
-<footer>
-```
-
-每个讲解单元应包含:
-- 唯一 id ;
-- data-pages 属性;
-- 可供搜索的完整正文文本;
-- 可供页码定位的页面映射信息。
-
-### 3. JavaScript 功能要求
-
-至少实现:
-- 关键词搜索;
-- 页面定位;
-- 图片放大遮罩;
-- 从 `.math-text[data-tex]` 和 `.math-display[data-tex]` 渲染 MathJax SVG;
-- Esc 退出;
-- 移动端目录开关;
-- 定位后的短暂高亮反馈。
-
-## 十五、内部质量核验清单
-
-交付前必须逐项检查并修复。
-
-### A. PDF 解析与页面覆盖
-
-- 已确认目标 PDF 文件名与总页数 N 。
-- 已确认本轮只转换一个 PDF;若用户给出多个 PDF,已将其拆成独立任务,没有批量生成多个 HTML。
-- 已读取全部页面的解析文本。
-- 已查看全部页面的视觉内容。
-- 对复杂图表、公式、电路、波形或 OCR 残缺页面进行了精读。
-- 页码从 1 到 N 连续无遗漏。
-- 每一页恰好归属于一个讲解单元。
-- 每一页在 HTML 中都有对应 slide 图像。
-- 页图顺序与原 PDF 完全一致。
-
-### B. 单元划分质量
-
-- 单元仅覆盖连续页码。
-- 动画递进页没有被机械重复讲解。
-- 同一概念的连续展开页已合理合并。
-- 同一 example 的题设、步骤和结论未被拆散。
-- 不同主题、不同模型或不同 example 没有被强行合并。
-- 多页单元均有明确合并理由。
-- 每个单元均能回答一个清晰学习问题。
-- 最终 HTML 正文中没有“各页在本单元中的贡献”或类似 OCR 重复摘录区块。
-
-### C. 内容质量
-
-- 有全讲概述、知识点分类、整体讲授逻辑、单元路线图和关键公式索引。
-- 每个模块均说明学习任务和承接关系。
-每个讲解单元均包含:
-- 单元标题与页码范围;
-- 原 slide 页图画廊;
-- 合并或独立呈现理由;
-- bullet point 形式的完整讲解;
-- 承接上一单元;
-- 本单元任务;
-- 组内推进;
-- 导向下一单元;
-- 掌握要点。
-- 完整讲解不是长段落堆叠,而是清晰的 bullet point 层级。
-- 重要公式说明了变量、意义和适用条件。
-- 图表、电路、波形和结构图得到了实质解释。
-- 补足内容与原 slide 内容已清晰区分。
-- 没有新增与课件无关的例题或无关扩展。
-
-### D. 公式与数学排版
-
-- 所有关键公式均经过原图核对。
-- 未直接使用破损 OCR 数学文本。
-- 所有公式均使用 `.math-text[data-tex]` 或 `.math-display[data-tex]` 包装并渲染。
-- 可见页面中没有裸露的 `\(...\)`、`\[...\]` 或未渲染 LaTeX。
-- 公式无乱码、无反斜杠转义错误。
-- 可见文本中没有裸露的 `X^T X`、`A^T A`、`X&#x27;`、`X\&#x27;`。
-- HTML 中没有 `\night`、`\nangle`、`Missing or unrecognized delimiter`、`Extra \left`。
-- 标题、导航、表格、图注中的公式均已进入 MathJax 或预渲染路径。
-- 页面截图中没有红色 MathJax 错误字符、裸 LaTeX、错位公式或反斜杠 prime。
-- MathJax 或替代渲染方案可正常工作.
-- 关键公式索引面板已核验。
-- 公式最密集单元已核验。
-- 至少一个 Example 单元中的公式已核验。
-
-### E. 技术表现
-
-- HTML 为单文件。
-- 所有 slide 图片均正常显示。
-- 图片可点击放大,且支持关闭与 Esc 。
-- 搜索功能正常。
-- 页码定位功能正常。
-- 桌面端布局清晰。
-- 移动端布局清晰。
-- 打印样式可用。
-- 不依赖会失效的本地绝对图片路径。
-- 本任务产生的临时审校文件、临时截图索引、临时 contact sheet 和临时文本抽取文件已删除,除非用户明确要求保留。
-
-## 十六、最终回复格式
-
-完成实际制作和检查后,聊天中的最终回复必须简洁,不要重新粘贴整份 HTML 正文。
-最终回复只包括:
-1. 已生成“内容聚合讲解(逻辑增强版)HTML”的说明;
-2. 以下统计信息:
-- PDF 总页数;
-- 模块数量;
-- 讲解单元数量;
-- 多页合并单元数量;
-- Example 单元数量;
-- 上下文补足单元数量;
-- 公式渲染检查结果;
-- 逐页视觉检查结果;
-- 临时中间产物清理结果;
-- 页面覆盖检查结果;
-3. 源 PDF 文件名或引用说明;
-4. 可点击打开 / 下载的 HTML 文件链接。
-推荐最终回复格式:
-- 已生成“内容聚合讲解(逻辑增强版)HTML”。
-- PDF 总页数:N
-- 模块数量:X
-- 讲解单元数量:Y
-- 多页合并单元数量:Z
-- Example 单元数量:E
-- 上下文补足单元数量:S
-- 页面覆盖检查:P001–PN 均已归入唯一讲解单元并保留原 slide 页图
-- 公式渲染检查:已检查关键公式索引、公式密集单元与 Example 单元中的公式显示
-- 逐页视觉检查:已逐页查看 slide 渲染图,不是只看 OCR 或 contact sheet
-- 临时中间产物:已删除逐页审校文件、临时截图索引、contact sheet 和文本抽取文件,除非用户要求保留
-- 源 PDF:`文件名.pdf`
-[打开 / 下载 HTML 学习讲义](生成文件链接)
-
-## 十七、可追加的本次任务特定约束
-
-如果我在本 prompt 后追加课程特定要求,例如:
-- “不要额外添加 example,只解释课件已有 example”;
-- “更偏向考试复习”;
-- “保留全部推导过程”;
-- “只使用英文术语”;
-- “加入双语术语表”;
-- “将补足模块默认展开”;
-- “需要适合打印为 A4”;
-- “特定章节讲得更详细”;
-- “所有定义保留英文原词”;
-- “尽量减少工程扩展,只保留主线”;
-- 则这些追加要求优先于一般写作偏好。
-但任何追加要求都不得取消以下核心要求:
-1. 全部原始页面均被读取、归属并在 HTML 中保留页图;
-2. 讲解组织必须符合教学逻辑,连续页面可以并应当按语义合并;
-3. 课件已有 example 必须保持完整;
-4. 正文中的完整讲解必须以清晰 bullet points 为主;
-5. 不显示冗长的“各页在本单元中的贡献”摘录区块;
-6. 数学公式必须正确显示;
-7. 最终必须交付可打开的单文件 HTML;
-8. 最终 HTML 与最终回复必须默认使用中文,并遵循 humanizer-zh 的自然技术说明风格;
-9. 逐页审校、PDF 文本提取和 slide 图像检查必须形成可验证的工作链,但临时中间产物最终必须删除。
-现在请直接基于我上传的目标 PDF 执行上述全部流程,制作、验证并交付最终 HTML 文件。
+Do not paste the HTML into chat.
