@@ -693,42 +693,41 @@
       font-size: 16px;
     }
 
-    .teaching-points {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      counter-reset: teaching-point;
-    }
-
-    .teaching-points li {
-      display: grid;
-      grid-template-columns: 26px minmax(0, 1fr);
-      gap: 9px;
-      padding: 9px 0;
+    .explanation-flow {
       border-top: 1px solid var(--line);
-      color: var(--ink-soft);
-      counter-increment: teaching-point;
     }
 
-    .teaching-points li::before {
+    .explanation-section {
       display: grid;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      color: var(--blue-dark);
-      background: var(--blue-soft);
-      content: counter(teaching-point);
-      place-items: center;
-      font-size: 11px;
-      font-weight: 760;
+      grid-template-columns: minmax(150px, .28fr) minmax(0, 1fr);
+      gap: 18px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
     }
 
-    .teaching-points li > div > p:last-child,
-    .teaching-points li > p:last-child {
+    .explanation-section h5 {
+      margin: 0;
+      color: var(--blue-dark);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .explanation-body {
+      min-width: 0;
+      color: var(--ink-soft);
+    }
+
+    .explanation-body p,
+    .explanation-body ul,
+    .explanation-body ol {
+      margin: 0 0 9px;
+    }
+
+    .explanation-body > :last-child {
       margin-bottom: 0;
     }
 
-    .teaching-points strong {
+    .explanation-body strong {
       color: var(--ink);
     }
 
@@ -896,36 +895,8 @@
       font-size: 15px;
     }
 
-    .page-explain-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-      gap: 0;
-    }
-
-    .page-explain-grid > div {
-      min-width: 0;
-      padding-right: 16px;
-    }
-
-    .page-explain-grid > div + div {
-      padding-right: 0;
-      padding-left: 16px;
-      border-left: 1px solid var(--line);
-    }
-
-    .page-explain h6 {
-      margin: 0 0 5px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 760;
-    }
-
-    .page-translation h6 {
-      color: var(--blue-dark);
-    }
-
-    .page-interpretation h6 {
-      color: var(--violet);
+    .page-explain-body {
+      color: var(--ink-soft);
     }
 
     .page-explain p,
@@ -939,17 +910,23 @@
       margin-bottom: 0;
     }
 
-    .detail-points {
-      margin: 8px 0 0;
-      padding-left: 18px;
+    .page-translation,
+    .page-interpretation {
+      line-height: 1.72;
     }
 
-    .detail-points li + li {
-      margin-top: 6px;
+    .page-translation strong {
+      color: var(--blue-dark);
     }
 
-    .detail-points strong {
-      color: var(--ink);
+    .page-interpretation {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .page-interpretation strong {
+      color: var(--violet);
     }
 
     .page-thread {
@@ -1176,21 +1153,13 @@
         display: block;
       }
 
-      .overview-grid,
-      .page-explain-grid {
+      .overview-grid {
         grid-template-columns: 1fr;
       }
 
-      .page-explain-grid > div {
-        padding-right: 0;
-      }
-
-      .page-explain-grid > div + div {
-        margin-top: 10px;
-        padding-top: 10px;
-        padding-left: 0;
-        border-top: 1px solid var(--line);
-        border-left: 0;
+      .explanation-section {
+        grid-template-columns: 1fr;
+        gap: 5px;
       }
 
       .module-head {
@@ -1566,21 +1535,29 @@
           <div class="commentary">
             <section class="unit-explanation">
               <h4>完整讲解</h4>
-              <ul class="teaching-points">
-                <!-- Use source-specific points; this visible section must teach the full unit while details remain closed. -->
-                <li><div><strong>本单元要回答的问题:</strong><p>{{SOURCE_SPECIFIC_EXPLANATION}}</p></div></li>
-                <li><div><strong>核心概念与条件:</strong><p>{{SOURCE_SPECIFIC_EXPLANATION}}</p></div></li>
-                <li>
-                  <div>
-                    <strong>关键推理或步骤:</strong>
-                    <p>{{CENTRAL_REASONING_CHAIN}}</p>
-                    <!-- Dense units continue with intermediate steps, equations, assumptions, and interpretation; do not stop at the final result. -->
-                    <p>{{WHY_THE_RESULT_FOLLOWS_AND_WHEN_IT_APPLIES}}</p>
+              <div class="explanation-flow">
+                <!-- Repeat, rename, and reorder sections to match the material. Use connected prose, not a five-item checklist. -->
+                <section class="explanation-section">
+                  <h5>问题如何建立</h5>
+                  <div class="explanation-body">
+                    <p>{{INTEGRATED_NARRATIVE_OPENING}}</p>
+                    <p>{{WHY_THE_NEXT_IDEA_IS_NEEDED}}</p>
                   </div>
-                </li>
-                <li><div><strong>图表 / 公式怎样读:</strong><p>{{SOURCE_SPECIFIC_EXPLANATION}}</p></div></li>
-                <li><div><strong>结论与边界:</strong><p>{{SOURCE_SPECIFIC_EXPLANATION}}</p></div></li>
-              </ul>
+                </section>
+                <section class="explanation-section">
+                  <h5>机制与推导</h5>
+                  <div class="explanation-body">
+                    <p>{{DETAILED_CROSS_SLIDE_MECHANISM_OR_DERIVATION}}</p>
+                    <p>{{WHY_EACH_STEP_FOLLOWS}}</p>
+                  </div>
+                </section>
+                <section class="explanation-section">
+                  <h5>结果、边界与连接</h5>
+                  <div class="explanation-body">
+                    <p>{{VISUAL_EVIDENCE_RESULT_LIMITS_AND_TRANSFER}}</p>
+                  </div>
+                </section>
+              </div>
               <!-- Formula example. Remove if not needed; never use visible \( \) or \[ \] delimiters. -->
               <div class="math-display" data-tex="{{VALID_LATEX}}">{{VALID_LATEX}}</div>
             </section>
@@ -1604,17 +1581,10 @@
               <div class="page-notes-body">
                 <section class="page-explain" data-page-detail="1">
                   <header><span class="page-chip">P001</span><h5>{{PAGE_TITLE_OR_ROLE}}</h5></header>
-                  <div class="page-explain-grid">
-                    <div class="page-translation" data-page-translation="1">
-                      <h6>原页逐句翻译</h6>
-                      <!-- Preserve the source page's complete reading order and hierarchy. Use paragraphs, lists, tables, labels, captions, and math as the page requires. -->
-                      <div class="translation-body">{{COMPLETE_LINE_BY_LINE_TRANSLATION}}</div>
-                    </div>
-                    <div class="page-interpretation">
-                      <h6>本页解释</h6>
-                      <p>{{PAGE_SPECIFIC_EXPLANATION}}</p>
-                      <!-- Keep the full cross-page derivation and synthesis in the always-visible 完整讲解. -->
-                    </div>
+                  <div class="page-explain-body">
+                    <!-- Keep every source claim and its order, but rewrite the slide layout as natural continuous Chinese prose. -->
+                    <p class="page-translation" data-page-translation="1"><strong>原页逐句翻译:</strong> {{COMPLETE_TRANSLATION_IN_NATURAL_PROSE}}</p>
+                    <p class="page-interpretation"><strong>本页解释:</strong> {{PAGE_SPECIFIC_EXPLANATION}}</p>
                   </div>
                 </section>
               </div>
