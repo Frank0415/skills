@@ -7,6 +7,18 @@ description: Convert one course-slide PDF into a self-contained Chinese HTML stu
 
 Convert one course-slide PDF into a self-contained Chinese HTML study guide. Reorganize the slides by teaching logic while preserving every original page image and page-level traceability. The result is not a summary, OCR transcript, or one card per page.
 
+## Required output template
+
+Before authoring HTML, read `assets/cslides-template.html` relative to this `SKILL.md` and use it as the output shell. Copy its complete document structure, `#cslides-theme` stylesheet, navigation controls, lightbox, MathJax setup, print behavior, and interaction script into the generated file. Then:
+
+- replace every `{{PLACEHOLDER}}` with lecture-specific content or remove the optional element;
+- expand the representative module, unit, slide, and page-detail blocks to cover the real PDF;
+- preserve the template's class names, element IDs, design tokens, component hierarchy, and JavaScript hooks;
+- do not invent a new theme, substitute another generic dashboard layout, or delete an interaction because the deck is long;
+- add source-specific markup or CSS only when the lecture genuinely needs a component the template does not provide, and build it from the existing tokens and density scale.
+
+The template is the consistency contract across independent agents and many PDFs. If the `apple-design` skill is available, use it as a review lens for hierarchy, legibility, spatial consistency, immediate feedback, and accessibility; the fixed cslides template remains authoritative. If the template asset is missing or unreadable, report the broken skill installation instead of silently producing an unrelated layout.
+
 ## Goal and voice
 
 Build an HTML guide that lets a first-time learner:
@@ -288,33 +300,19 @@ If external MathJax cannot load, use an available local renderer or pre-render f
 
 ## Visual and technical design
 
-Use this restrained course-guide theme:
+Treat information density as the first visual criterion: the learner should see the lecture structure, source slides, and substantive explanation without oversized decoration or excessive empty space. Use the fixed template rather than rewriting its CSS. Its visual system intentionally provides:
 
-```css
-:root {
-  --navy: #063e88;
-  --blue: #0b5bb4;
-  --sky: #e7f0fb;
-  --ink: #16263b;
-  --muted: #5b6d83;
-  --paper: #ffffff;
-  --bg: #f3f6fb;
-  --line: #dce5f1;
-  --green: #096c67;
-  --orange: #c75c14;
-  --shadow: 0 12px 28px rgba(16,40,72,.08);
-  --radius: 18px;
-}
-```
+- a neutral canvas, bright reading surfaces, strong black text, and distinct blue, green, amber, and violet semantic accents rather than a one-color theme;
+- system sans-serif typography with hierarchy from size, weight, spacing, and grouping rather than decorative display fonts;
+- compact translucent navigation, direct controls, visible focus states, immediate press feedback, and restrained motion;
+- side-by-side `4:3` slide galleries on wide screens, single-column galleries on narrow screens, and dark slide framing that keeps the original page legible;
+- one framed repeated item per teaching unit, with internal sections separated by rhythm and rules rather than nested card styling;
+- clear visual distinction among always-visible teaching, folded page notes, optional context supplements, formulas, transitions, and mastery outcomes;
+- reduced-motion, reduced-transparency, increased-contrast, mobile navigation, overflow, and print handling.
 
-- Use a blue Hero gradient, serif display headings, and Chinese-capable sans-serif body text.
-- Keep the overall width near `1320px` and desktop navigation near `290px`.
-- Use white panels, fine borders, restrained shadows, and the defined radius.
-- Use blue for structure, green for conclusions and conditions, orange for supplements and model switches, pale blue for knowledge flow, and blue-green labels for Examples.
-- Keep galleries and commentary spacious on desktop and single-column on narrow screens.
-- Prevent text, controls, tables, and formulas from overlapping or widening the page; allow local horizontal scrolling for wide formulas and tables.
+Do not enlarge headings or spacing merely to make the page feel more designed. Do not add gradients, decorative blobs, stock imagery, floating section cards, negative letter spacing, or animation unrelated to navigation and feedback. Prevent text, controls, tables, formulas, and slide captions from overlapping or widening the page; use local horizontal scrolling only where the content is intrinsically wide.
 
-Use semantic `header`, `nav`, `main`, `section`, `article`, `figure`, `figcaption`, `details`, and `footer` elements. Give each unit a unique ID, `data-pages`, searchable text, and page mapping. Inline CSS and JavaScript. Do not depend on local absolute paths.
+Use semantic `header`, `nav`, `main`, `section`, `article`, `figure`, `figcaption`, `details`, and `footer` elements. Give each unit a unique ID, `data-pages`, searchable text, and page mapping. Inline CSS and JavaScript. Do not depend on local absolute paths. Keep the template's interaction IDs unique and do not rename them without updating every matching script and accessibility reference.
 
 Print CSS hides navigation, search, zoom controls, overlays, and other interactive controls while preserving the Hero, overview panels, formulas, module headings, unit explanations, slide images, transitions, and mastery summaries. Avoid splitting a unit heading from its content and keep A4 output legible.
 
@@ -326,8 +324,8 @@ Before delivery:
 2. Compare PDF page count with `.page-explain[data-page-detail]`; require exactly one page-detail block for every page `1...N`, in order, with both required teaching fields.
 3. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic or repeated explanations. Read each always-visible explanation with all disclosures closed and confirm it still teaches the complete unit.
 4. Confirm every key formula and visual is interpreted, every supplement is labeled, and no unsupported teacher intent or factual invention appears.
-5. Parse the HTML, check unique IDs and inline script syntax, and scan for placeholders, malformed tags, local paths, naked TeX, and MathJax errors.
-6. Open the artifact and inspect desktop and narrow layouts, search, page location, zoom, responsive overflow, and print behavior. Do not claim browser validation if only static checks ran.
+5. Parse the HTML, check unique IDs and inline script syntax, and scan for unresolved `{{...}}` placeholders, malformed tags, local paths, naked TeX, and MathJax errors.
+6. Open the artifact in a real browser and inspect desktop and narrow layouts with all disclosures closed first, then with representative page notes and supplements open. Check information density, hierarchy, clipping, overlap, search, page location, zoom, responsive overflow, and print behavior. When computer-use is available, inspect screenshots directly. Do not claim browser validation if only static checks ran.
 7. Delete temporary work files after all checks pass.
 
 User-added constraints may change emphasis, language, terminology, print preferences, supplement defaults, and level of detail. They do not override page coverage, source order, complete source examples, mathematical correctness, single-file delivery, or evidence-based validation unless the user explicitly changes that invariant.
