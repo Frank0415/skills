@@ -702,6 +702,18 @@
       border-top: 1px solid var(--line);
     }
 
+    .core-idea {
+      margin: 0 0 14px;
+      padding: 11px 14px;
+      border-left: 3px solid var(--blue);
+      background: var(--blue-soft);
+      color: var(--ink);
+    }
+
+    .core-idea strong {
+      color: var(--blue-dark);
+    }
+
     .explanation-section {
       display: grid;
       grid-template-columns: minmax(150px, .28fr) minmax(0, 1fr);
@@ -1540,8 +1552,9 @@
           <div class="commentary">
             <section class="unit-explanation">
               <h4>完整讲解</h4>
+              <div class="core-idea"><strong>核心思想:</strong> {{STATE_THE_CENTRAL_IDEA_RELATION_OR_DECISION_RULE_IN_1_TO_3_SENTENCES}}</div>
               <div class="explanation-flow">
-                <!-- Use 3-5 source-specific sections and normally 6-12 substantial paragraphs for a merged technical unit. Rename, add, remove, and reorder sections to match the material; do not copy these headings blindly or write a checklist. -->
+                <!-- Use only the source-specific sections needed by the material. Rename, add, remove, and reorder them; do not copy these headings blindly or give every detail equal weight. -->
                 <section class="explanation-section">
                   <h5>{{SOURCE_SPECIFIC_PROBLEM_HEADING}}</h5>
                   <div class="explanation-body">
@@ -1572,7 +1585,7 @@
                   </div>
                 </section>
               </div>
-              <!-- Formula example. Remove if not needed; never use visible \( \) or \[ \] delimiters. -->
+              <!-- Key-formula example. Keep only formulas central to the unit's reasoning; place secondary notation inline. Remove if not needed; never use visible \( \) or \[ \] delimiters. -->
               <div class="math-display" data-tex="{{VALID_LATEX}}">{{VALID_LATEX}}</div>
             </section>
 

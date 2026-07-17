@@ -129,9 +129,9 @@ Each unit has two complementary teaching layers. Do not make the learner open a 
 
 ### Always-visible complete explanation
 
-Write a dense, source-specific explanation in `.unit-explanation`. It must stand alone as the main lesson, not act as a teaser for the folded page notes. Teach all slides in the unit as one integrated narrative: combine their definitions, visual evidence, formulas, intermediate reasoning, and conclusions into a coherent explanation of the shared teaching task. Do not write one shallow bullet per page or simply concatenate page summaries.
+Write a source-specific explanation in `.unit-explanation`. It must stand alone as the main lesson, not act as a teaser for the folded page notes. Teach all slides in the unit as one integrated narrative: combine the definitions, visual evidence, formulas, reasoning, and conclusions needed to explain the shared teaching task. Do not write one shallow bullet per page or simply concatenate page summaries.
 
-Before drafting that narrative, derive a private coverage ledger from the unit's page-audit rows. Include every substantive definition, claim, formula, algorithm step, comparison, visual cue, assumption, caveat, and source conclusion from every page in the unit. The visible lesson must explain each item once at the point where it advances the shared argument. Do not print the ledger in the HTML. Page notes preserve source wording page by page; `.unit-explanation` must do the harder work of interpreting the evidence, supplying the missing reasoning, and connecting it across pages.
+Before drafting that narrative, derive a private coverage ledger from the unit's page-audit rows. Record the substantive definitions, claims, formulas, algorithm steps, comparisons, visual cues, assumptions, caveats, and source conclusions. Explain each relevant item once where it advances the shared argument. Do not print the ledger in the HTML. Page notes preserve source wording page by page; `.unit-explanation` interprets the evidence, supplies necessary missing reasoning, and connects it across pages.
 
 Write connected prose under source-specific subsection headings. Bullets are appropriate only for a real sequence, comparison set, or list of parallel conditions; they must not be the default shape of the lesson. The following are coverage questions, not five template labels:
 
@@ -145,7 +145,9 @@ Write connected prose under source-specific subsection headings. Bullets are app
 
 Do not satisfy these items with generic labels followed by one vague sentence. Name the source-specific quantities, operations, visual evidence, and conclusions. Preserve the full problem-to-result chain for examples and derivations.
 
-For dense material, put the full teaching depth here:
+Lead each substantive technical unit with one short `.core-idea` block that states the central idea, relation, or decision rule in one to three sentences. Identify the one or two formulas that carry the unit's reasoning and render them near the explanation they support with `.math-display`; keep secondary notation inline. The reader should be able to scan the core idea, key formulas, and subsection headings to recover the knowledge spine before reading the details. Do not promote every definition, caveat, or intermediate identity to equal visual weight.
+
+For material that needs unpacking, put the cross-page teaching here:
 
 - for a formula or derivation, define the target quantity and variables, reconstruct the missing intermediate reasoning, explain the result's meaning, and state its assumptions;
 - for a convergence or complexity claim, define the error or cost being measured, explain where each factor comes from, distinguish parallel work from sequential dependency, and state when the rate does not apply;
@@ -154,11 +156,11 @@ For dense material, put the full teaching depth here:
 - for a graph, table, circuit, waveform, or diagram, explain how to read the visual evidence before giving the conclusion;
 - add a small numerical or conceptual example when it materially clarifies an abstract rate, bound, or update rule, while labeling it as teaching context rather than slide content.
 
-Use as many paragraphs, equations, or substeps as the learner needs. For a multi-slide unit, trace the causal progression across the slides while explaining the shared idea; do not create isolated mini-summaries for P012, P013, and P014. Do not reduce a derivation to a result, an algorithm to a list of nouns, or a complexity claim to the final big-O expression. The visible explanation should make clear how the pages work together, why the steps are valid, and under which conditions the conclusion holds.
+Use only the paragraphs, equations, and substeps needed to teach the material clearly. For a multi-slide unit, trace the causal progression across the slides while explaining the shared idea; do not create isolated mini-summaries for P012, P013, and P014. Do not reduce a derivation to a result, an algorithm to a list of nouns, or a complexity claim to the final big-O expression. The visible explanation should make clear how the pages work together, why the steps are valid, and under which conditions the conclusion holds.
 
-Use this as a depth diagnostic, not a writing quota: a merged unit containing two to four substantive technical slides will usually require three to five source-specific subsections, six to twelve substantial paragraphs, and roughly 900-1600 Chinese characters of visible explanation, excluding the transition map and folded page notes. Divider, recap, or repeated-animation units may be shorter; a full derivation or Example may be longer. If a multi-slide technical unit is below roughly 800 Chinese characters, reopen its coverage ledger and look for omitted definitions, intermediate reasoning, formula interpretation, visual evidence, tradeoffs, or limits. Add missing teaching content rather than padding, repeating the translation, or splitting prose into artificial fragments. Each paragraph should normally establish a concrete claim, explain its reason or evidence, and state its implication for the unit.
+Match explanation length to the unit's teaching density. A divider, recap, repeated animation, or straightforward definition should stay short; a real derivation, algorithm, comparison, or worked Example may need more room. Reopen the coverage ledger only when a necessary definition, reasoning step, formula interpretation, visual cue, tradeoff, or limit is missing. Add missing teaching content, but remove padding, repeated translation, duplicated conclusions, and artificial subsectioning. Each paragraph should establish a concrete claim and the reason or implication that helps the learner understand it.
 
-A multi-slide unit is not complete if its main lesson is only five one-sentence checklist items. Hide the gallery and all disclosures, then ask whether an unfamiliar learner could reconstruct the setup, the cross-slide mechanism or derivation, the role of the formulas or visuals, the conclusion, and its limits from `.unit-explanation` alone. If not, deepen the integrated explanation before continuing.
+A multi-slide unit is not complete if its main lesson is only a terse checklist. Hide the gallery and all disclosures, then ask whether an unfamiliar learner could reconstruct the setup, the cross-slide mechanism or derivation, the role of the formulas or visuals, the conclusion, and its limits from `.unit-explanation` alone. If not, add the missing explanation before continuing.
 
 ### Folded page-by-page explanation
 
@@ -167,13 +169,13 @@ After the always-visible explanation and transition map, add one mandatory `deta
 Every page block contains:
 
 1. `原页逐句翻译`: a complete Chinese translation of the source page, in source semantic order but rewritten as natural continuous Chinese prose.
-2. `本页解释`: a page-specific explanation of terminology, formulas, visuals, assumptions, and the page's role in the unit.
+2. `本页解释`: a concise page-specific explanation of the points that need clarification and the page's role in the unit.
 
 The translation is a source-fidelity layer, not a summary or loose paraphrase. Translate every visible title, subtitle, sentence, bullet, nested bullet, table cell, axis label, legend, caption, callout, annotation, and code comment that carries meaning. Preserve formulas, variables, code, proper nouns, and useful English technical terms exactly while translating their surrounding prose. Keep the source's semantic order and every claim, but do not mechanically reproduce the slide's bullets, columns, or table layout. Join related source lines into one natural paragraph with commas, semicolons, or short connective phrases; retain a table or list only when converting it to prose would destroy a real comparison or sequence. Do not omit repeated text on an animation page or add teaching claims inside the translation. Reconstruct text from the rendered page rather than copying damaged OCR. If a fragment remains unreadable after visual inspection, mark the smallest fragment as `原页文字不清` instead of guessing.
 
-Place the complete translation and `本页解释` in one `.page-explain-body` frame, with the explanation immediately following the translation. Do not split them into columns, cards, or separately bordered regions. In the explanation, clarify the page's terms, formula notation, diagram-reading order, assumptions, caveats, corrections, and contribution to the unit. For animation or progressive-reveal pages, state what changed from the preceding page and why it matters. Title, agenda, divider, recap, and closing pages may need only a short explanation, but their translation must still be complete.
+Place the complete translation and `本页解释` in one `.page-explain-body` frame, with the explanation immediately following the translation. Do not split them into columns, cards, or separately bordered regions. Clarify only what this page actually needs, such as unfamiliar terms, formula notation, diagram-reading order, assumptions, caveats, corrections, or its contribution to the unit. Do not restate points already taught clearly in `完整讲解`. For animation or progressive-reveal pages, state what changed from the preceding page and why it matters. Title, agenda, divider, recap, and closing pages usually need only a short explanation, but their translation must still be complete.
 
-Keep cross-page synthesis and the full derivation or algorithm walkthrough in the always-visible `完整讲解`; do not bury the real lesson in page notes or duplicate the same long explanation on several pages. The page-specific explanation may be detailed, but it stays anchored to what this page contributes.
+Keep cross-page synthesis and the derivation or algorithm walkthrough in the always-visible `完整讲解`; do not bury the real lesson in page notes or duplicate it across pages. Keep each page-specific explanation anchored to what that page uniquely contributes.
 
 Finish each `details.page-notes` section with a concise `本单元页间主线` that connects the pages without repeating the always-visible explanation. Reconstruct the translation from source evidence rather than pasting raw OCR, and do not duplicate the same explanatory paragraph across pages.
 
@@ -204,6 +206,7 @@ Each unit uses this semantic structure. The page-notes block is required; omit o
   <div class="commentary">
     <section class="unit-explanation">
       <h4>完整讲解</h4>
+      <div class="core-idea"><strong>核心思想:</strong> 用一至三句写出本单元最重要的关系、机制或判断规则。</div>
       <div class="explanation-flow">
         <section class="explanation-section">
           <h5>问题如何建立</h5>
@@ -352,7 +355,7 @@ Before delivery:
 
 1. Compare PDF page count, audit rows, `data-page` values, embedded images, and the page index; require exactly `1...N`, no duplicates, and source order.
 2. Compare PDF page count with `.page-explain[data-page-detail]` and `.page-translation[data-page-translation]`; require exactly one of each for every page `1...N`, in order. Compare every source page against its translation and confirm no meaningful source line, label, bullet, table cell, caption, or annotation was summarized away or omitted.
-3. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic or repeated explanations. Read each always-visible explanation with all disclosures closed and confirm it integrates the grouped slides into a complete lesson. Reject multi-slide units reduced to five one-sentence checklist items. Measure the visible explanation text for every merged technical unit and manually re-audit any unit below the depth diagnostic above; length alone never passes the check. Sample at least one dense formula or complexity unit, one algorithm or example unit, and one visual unit; confirm the full reasoning chain appears in `完整讲解` rather than being deferred to page notes.
+3. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic, repeated, or padded explanations. Read each always-visible explanation with all disclosures closed and confirm it integrates the grouped slides into a coherent lesson. Reject checklist-only summaries, but do not expand a unit merely to meet a length target. Sample at least one formula or complexity unit, one algorithm or example unit, and one visual unit; confirm the necessary reasoning chain appears in `完整讲解` rather than being deferred to page notes.
 4. Confirm every key formula and visual is interpreted, every supplement is labeled, and no unsupported teacher intent or factual invention appears.
 5. Parse the HTML, check unique IDs and inline script syntax, and scan for unresolved `{{...}}` placeholders, malformed tags, local paths, naked TeX, and MathJax errors.
 6. Open the artifact in a real browser and inspect desktop and narrow layouts with all disclosures closed first, then with representative page notes and supplements open. Check information density, hierarchy, clipping, overlap, search, page location, zoom, responsive overflow, and print behavior. When computer-use is available, inspect screenshots directly. Do not claim browser validation if only static checks ran.
