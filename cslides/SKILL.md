@@ -32,7 +32,7 @@ Build an HTML guide that lets a first-time learner:
 
 Write the HTML, navigation, captions, explanations, QA report, and final response in Chinese. Preserve English technical terms, code, APIs, variables, filenames, paths, commands, proper nouns, and source titles when useful, then explain their lecture-specific meaning in Chinese.
 
-Use the `humanizer-zh` style. If that skill is installed, invoke it; otherwise apply these rules directly: write plainly and specifically, omit pleasantries and promotional language, avoid formulaic transitions and forced three-part rhetoric, vary sentence rhythm without sacrificing rigor, and treat the reader as an intelligent beginner. Preserve English terms before their Chinese explanation when that improves precision.
+Use the `humanizer-zh` style while drafting and during the final prose review. If that skill is installed, invoke it; otherwise apply these rules directly: write plainly and specifically, omit pleasantries and promotional language, avoid formulaic transitions and forced three-part rhetoric, vary sentence rhythm without sacrificing rigor, and treat the reader as an intelligent beginner. Preserve English terms before their Chinese explanation when that improves precision.
 
 Do not predict exam questions, turn the guide into a question bank, invent unrelated exercises, or add encyclopedia-length background outside the lecture's knowledge chain unless the user asks.
 
@@ -159,6 +159,8 @@ For material that needs unpacking, put the cross-page teaching here:
 Use only the paragraphs, equations, and substeps needed to teach the material clearly. For a multi-slide unit, trace the causal progression across the slides while explaining the shared idea; do not create isolated mini-summaries for P012, P013, and P014. Do not reduce a derivation to a result, an algorithm to a list of nouns, or a complexity claim to the final big-O expression. The visible explanation should make clear how the pages work together, why the steps are valid, and under which conditions the conclusion holds.
 
 Match explanation length to the unit's teaching density. A divider, recap, repeated animation, or straightforward definition should stay short; a real derivation, algorithm, comparison, or worked Example may need more room. Reopen the coverage ledger only when a necessary definition, reasoning step, formula interpretation, visual cue, tradeoff, or limit is missing. Add missing teaching content, but remove padding, repeated translation, duplicated conclusions, and artificial subsectioning. Each paragraph should establish a concrete claim and the reason or implication that helps the learner understand it.
+
+Describe evidence positively: state what a graph, formula, circuit, or source passage shows and how to read it. Do not pad the lesson with inventories of what cannot be inferred, guessed, or numerically recovered; omit those sentences. Keep a negative statement only when it defines a necessary mathematical applicability boundary or prevents a likely source-specific misconception, and state it once. For example, retain `这里不能把它推广成对所有“系统噪声 + 随机噪声”模型都无条件成立。` when that boundary is required for correctness.
 
 A multi-slide unit is not complete if its main lesson is only a terse checklist. Hide the gallery and all disclosures, then ask whether an unfamiliar learner could reconstruct the setup, the cross-slide mechanism or derivation, the role of the formulas or visuals, the conclusion, and its limits from `.unit-explanation` alone. If not, add the missing explanation before continuing.
 
