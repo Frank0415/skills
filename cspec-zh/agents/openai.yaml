@@ -1,0 +1,4 @@
+interface:
+  display_name: "CSpec 中文"
+  short_description: "编写明确、一致、可测试且适合软件工程的受控中文技术规范"
+  default_prompt: "使用 $cspec-zh 将这份软件规格改写成明确、可测试的受控技术中文。"
