@@ -1,0 +1,4 @@
+interface:
+  display_name: "CSpec"
+  short_description: "Write precise, testable software specifications"
+  default_prompt: "Use $cspec to rewrite this software specification in controlled technical English."
