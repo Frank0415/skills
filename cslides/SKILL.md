@@ -44,7 +44,7 @@ Do not declare completion until all of the following are true:
 2. Every page belongs to exactly one teaching unit, and units cover only continuous page ranges.
 3. Every original slide image appears once, in source order, with its page number.
 4. Complete examples, derivations, design flows, circuits, and visual progressions remain intact.
-5. Every page has exactly one page-detail block with a complete line-by-line Chinese translation of the source page and a page-specific explanation.
+5. Every page has exactly one page-detail block with a complete Chinese translation of its instructional content and a page-specific explanation.
 6. Each unit's always-visible explanation is detailed enough to teach the unit without opening any folded section.
 7. Explanations are specific to the source content rather than copied OCR or template language.
 8. Visible formulas follow the MathJax contract below and render without errors or naked delimiters.
@@ -170,12 +170,12 @@ After the always-visible explanation and transition map, add one mandatory `deta
 
 Every page block contains:
 
-1. `原页逐句翻译`: a complete Chinese translation of the source page, in source semantic order but rewritten as natural continuous Chinese prose.
+1. `原页逐句翻译`: a complete Chinese translation of the page's instructional content, in source semantic order but rewritten as natural continuous Chinese prose.
 2. `本页解释`: a concise page-specific explanation of the points that need clarification and the page's role in the unit.
 
-The translation is a source-fidelity layer, not a summary or loose paraphrase. Translate every visible title, subtitle, sentence, bullet, nested bullet, table cell, axis label, legend, caption, callout, annotation, and code comment that carries meaning. Preserve formulas, variables, code, proper nouns, and useful English technical terms exactly while translating their surrounding prose. Keep the source's semantic order and every claim, but do not mechanically reproduce the slide's bullets, columns, or table layout. Join related source lines into one natural paragraph with commas, semicolons, or short connective phrases; retain a table or list only when converting it to prose would destroy a real comparison or sequence. Do not omit repeated text on an animation page or add teaching claims inside the translation. Reconstruct text from the rendered page rather than copying damaged OCR. If a fragment remains unreadable after visual inspection, mark the smallest fragment as `原页文字不清` instead of guessing.
+The translation is a source-fidelity layer for the lesson, not a summary or loose paraphrase. Translate every instructional title, subtitle, sentence, bullet, nested bullet, table cell, axis label, legend, caption, callout, annotation, and code comment that carries course meaning. Exclude repeated slide-master chrome such as section-navigation tabs, progress markers, institutional branding, course footers, lecture labels, and page numbers unless the slide itself discusses them or they are necessary to understand the lesson. Do not narrate the layout with phrases such as `页眉导航依次为`, `左图标为`, `标题为`, or `页脚为`; start directly with the translated idea and integrate labels where they explain the content. Preserve formulas, variables, code, proper nouns, and useful English technical terms exactly while translating their surrounding prose. Keep the instructional content's semantic order and every teaching claim, but do not mechanically reproduce the slide's bullets, columns, or table layout. Join related source lines into natural prose with commas, semicolons, or short connective phrases; retain a table or list only when converting it to prose would destroy a real comparison or sequence. Do not repeat unchanged text on an animation page when it adds no new teaching content; translate the new or changed content and state the progression. Reconstruct text from the rendered page rather than copying damaged OCR. If an instructional fragment remains unreadable after visual inspection, mark the smallest fragment as `原页文字不清` instead of guessing.
 
-Place the complete translation and `本页解释` in one `.page-explain-body` frame, with the explanation immediately following the translation. Do not split them into columns, cards, or separately bordered regions. Clarify only what this page actually needs, such as unfamiliar terms, formula notation, diagram-reading order, assumptions, caveats, corrections, or its contribution to the unit. Do not restate points already taught clearly in `完整讲解`. For animation or progressive-reveal pages, state what changed from the preceding page and why it matters. Title, agenda, divider, recap, and closing pages usually need only a short explanation, but their translation must still be complete.
+Place the complete translation and `本页解释` in one `.page-explain-body` frame, with the explanation immediately following the translation. Do not split them into columns, cards, or separately bordered regions. Clarify only what this page actually needs, such as unfamiliar terms, formula notation, diagram-reading order, assumptions, or its contribution to the unit. Do not restate points already taught clearly in `完整讲解`. For animation or progressive-reveal pages, state what changed from the preceding page and why it matters. Title, agenda, divider, recap, and closing pages usually need only a short explanation of their instructional content.
 
 Keep cross-page synthesis and the derivation or algorithm walkthrough in the always-visible `完整讲解`; do not bury the real lesson in page notes or duplicate it across pages. Keep each page-specific explanation anchored to what that page uniquely contributes.
 
@@ -245,7 +245,7 @@ Each unit uses this semantic structure. The page-notes block is required; omit o
         <section class="page-explain" data-page-detail="12">
           <header><span class="page-chip">P012</span><h5>原始标题或页面作用</h5></header>
           <div class="page-explain-body">
-            <p class="page-translation" data-page-translation="12"><strong>原页逐句翻译:</strong> 不遗漏原页内容，按语义顺序改写成自然连续的中文。</p>
+            <p class="page-translation" data-page-translation="12"><strong>原页逐句翻译:</strong> 不遗漏原页教学内容，省略重复母版元素，按语义顺序改写成自然连续的中文。</p>
             <p class="page-interpretation"><strong>本页解释:</strong> 紧接翻译，解释本页术语、公式、视觉信息及其在单元中的作用。</p>
           </div>
         </section>
@@ -356,7 +356,7 @@ Print CSS hides navigation, search, zoom controls, overlays, and other interacti
 Before delivery:
 
 1. Compare PDF page count, audit rows, `data-page` values, embedded images, and the page index; require exactly `1...N`, no duplicates, and source order.
-2. Compare PDF page count with `.page-explain[data-page-detail]` and `.page-translation[data-page-translation]`; require exactly one of each for every page `1...N`, in order. Compare every source page against its translation and confirm no meaningful source line, label, bullet, table cell, caption, or annotation was summarized away or omitted.
+2. Compare PDF page count with `.page-explain[data-page-detail]` and `.page-translation[data-page-translation]`; require exactly one of each for every page `1...N`, in order. Compare every source page against its translation and confirm no instructional line, label, bullet, table cell, caption, or annotation was summarized away or omitted. Confirm repeated navigation tabs, branding, course footers, and page numbers were not copied into the translation.
 3. Review unit boundaries for split examples, derivations, models, and visual progressions; remove generic, repeated, or padded explanations. Read each always-visible explanation with all disclosures closed and confirm it integrates the grouped slides into a coherent lesson. Reject checklist-only summaries, but do not expand a unit merely to meet a length target. Sample at least one formula or complexity unit, one algorithm or example unit, and one visual unit; confirm the necessary reasoning chain appears in `完整讲解` rather than being deferred to page notes.
 4. Confirm every key formula and visual is interpreted, every supplement is labeled, and no unsupported teacher intent or factual invention appears.
 5. Parse the HTML, check unique IDs and inline script syntax, and scan for unresolved `{{...}}` placeholders, malformed tags, local paths, naked TeX, and MathJax errors.
