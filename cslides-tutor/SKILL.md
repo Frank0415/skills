@@ -1,6 +1,6 @@
 ---
 name: cslides-tutor
-description: Answer student follow-ups and write them into existing cslides HTML. Use for slide questions, derivations, examples, or corrections; preserve source context, MathJax, styling, and closed blocks.
+description: Answer slide questions and update existing cslides HTML while preserving source context, MathJax, styling, and closed blocks.
 ---
 
 # CSlides Tutor

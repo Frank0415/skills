@@ -1,6 +1,6 @@
 ---
 name: cslides-orchestrator
-description: Orchestrate multiple course-slide PDFs through independent cslides workers. Use for PDF folders, batches, or archives; keep one PDF per worker and run separate convert, judge, and fix stages with bounded concurrency.
+description: Orchestrate multiple slide PDFs with one cslides worker per PDF, bounded concurrency, and separate convert, judge, and fix stages.
 ---
 
 # cslides-orchestrator

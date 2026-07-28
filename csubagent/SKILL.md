@@ -1,6 +1,6 @@
 ---
 name: csubagent
-description: 主动协调 Codex subagent 完成大型、可并行或多工作面的任务。适用于代码库探索、资料检索、测试、日志分析、专项审查、独立实现、多文档处理及复杂计划执行；当委派能实质提高速度、质量或主线程上下文清晰度时使用。
+description: 协调 Codex subagent 处理可并行的复杂任务，包括探索、检索、测试、审查、独立实现与多文档工作。
 ---
 
 # csubagent

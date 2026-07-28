@@ -1,6 +1,6 @@
 ---
 name: cslides
-description: Convert one course-slide PDF into a self-contained Chinese HTML study guide. Use for slide-to-HTML work requiring complete page coverage, source images, grouped teaching units, formula and diagram explanations, navigation, MathJax, and visual QA.
+description: Convert one course-slide PDF into a self-contained Chinese HTML study guide with full page coverage, source slides, explanations, MathJax, navigation, and visual QA.
 ---
 
 # cslides
