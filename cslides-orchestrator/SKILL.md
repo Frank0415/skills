@@ -13,13 +13,14 @@ This skill does not write course HTML itself. It orchestrates independent Codex 
 
 ## Execution profile
 
-Use this default profile for every worker:
+Use these default profiles:
 
 - Maximum active workers: `3`.
-- Model: `gpt-5.6-sol`.
-- Reasoning effort: `medium`.
+- Convert and routine fix: `gpt-5.6-luna` with `reasoning_effort: "max"`.
+- Judge and rejudge: `gpt-5.6-sol` with `reasoning_effort: "high"`.
+- Difficult debugging, ambiguous failures, or high-risk corrections: `gpt-5.6-sol` with `reasoning_effort: "high"`; use `xhigh` when complexity, risk, or failed prior attempts justify it.
 
-Apply the same model and effort to convert, judge, fix, and rejudge workers. Do not mix worker profiles within one run. Only an explicit user instruction in the current request may override these defaults.
+Only an explicit user instruction in the current request may override these defaults. A user override may apply globally or to named worker roles; preserve role-specific defaults for roles the user did not override.
 
 ## Preflight interview
 
@@ -40,9 +41,10 @@ Do not ask about model or reasoning effort unless the user explicitly requests a
 
 When launching workers:
 
-- Pass `-m gpt-5.6-sol`.
-- Pass `-c model_reasoning_effort="medium"`.
-- If the user explicitly overrides the profile, pass the requested model and effort to every worker instead.
+- Convert and routine fix: pass `-m gpt-5.6-luna -c model_reasoning_effort="max"`.
+- Judge and rejudge: pass `-m gpt-5.6-sol -c model_reasoning_effort="high"`.
+- Difficult debug or correction: pass `-m gpt-5.6-sol` with `high` or `xhigh` according to the rule above.
+- If the user explicitly overrides a profile, apply the override to the specified roles or to all workers when the instruction is global.
 
 ## Hard rules
 

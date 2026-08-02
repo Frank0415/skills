@@ -18,7 +18,7 @@ description: 协调 Codex subagent 处理可并行的复杂任务，包括探索
 - subagent 返回提炼后的证据、改动和验证结果，不向主线程倾倒原始过程；
 - 并行工作没有引入未处理的写入冲突或相互矛盾的结论；
 - 主 Agent 已综合结果、处理冲突并验证最终输出；
-- 所有 subagent 的 reasoning effort 不低于 `medium`。
+- 普通任务使用 `gpt-5.6-luna` + `max`，困难任务和验证任务按规则升级到 `gpt-5.6-sol` + `high` 或 `xhigh`。
 
 ## 判断是否委派
 
@@ -56,9 +56,11 @@ description: 协调 Codex subagent 处理可并行的复杂任务，包括探索
 
 主 Agent 不得把任务拆完后停止思考。Subagent 的结论是输入，不是自动成立的最终判断。
 
-## 角色与推理强度
+## 角色与模型路由
 
-优先使用同一模型系列，仅按工作难度调整 reasoning effort。用户、项目配置或现有 agent 配置指定模型时，遵守该指定。
+默认使用 `gpt-5.6-luna` + `reasoning_effort: "max"`。仅在困难问题、困难调试、复杂歧义，或 Validator、Judge、Reviewer 等独立验证任务中使用 `gpt-5.6-sol`。Sol 通常使用 `high`；当问题高度复杂、高风险、跨越深层依赖，或已有尝试未能解决时使用 `xhigh`。
+
+用户在当前请求中明确指定模型或 reasoning effort 时，遵守用户指定。不要因为任务重要但并不困难而自动使用 Sol，也不要把所有 Agent 统一升级为 Sol。
 
 ### Scout
 
@@ -70,7 +72,7 @@ description: 协调 Codex subagent 处理可并行的复杂任务，包括探索
 - 检查日志、输出或一组独立材料；
 - 为实现者整理所需证据。
 
-Scout 应使用 `reasoning_effort: "medium"` 或更高。窄范围调查优先使用 `fork_turns: "none"`，避免继承无关历史。任务需要先前决定时，提供必要摘要或选择性继承相关上下文。
+Scout 默认使用 `gpt-5.6-luna` + `reasoning_effort: "max"`。窄范围调查优先使用 `fork_turns: "none"`，避免继承无关历史。任务需要先前决定时，提供必要摘要或选择性继承相关上下文。
 
 ### Worker
 
@@ -81,19 +83,19 @@ Scout 应使用 `reasoning_effort: "medium"` 或更高。窄范围调查优先�
 - 完成一份独立文档或一个语义完整的文档组；
 - 根据已确认的问题实施修复并验证。
 
-常规工作使用 `reasoning_effort: "medium"`。涉及较深依赖、复杂逻辑、重要边界或困难验证时使用 `high` 或更高。
+常规工作使用 `gpt-5.6-luna` + `reasoning_effort: "max"`。只有工作本身属于困难实现或困难调试时，才改用 `gpt-5.6-sol` + `high`；高度复杂、高风险或在已有失败证据下继续处理时使用 `xhigh`。
 
 ### Smart Worker
 
-使用 Smart Worker 处理困难实施、歧义消解或需要有限协调的独立工作面。Smart Worker 应使用 `reasoning_effort: "high"` 或更高。
+使用 Smart Worker 处理困难实施、困难调试、歧义消解或需要有限协调的独立工作面。Smart Worker 使用 `gpt-5.6-sol` + `reasoning_effort: "high"`，高度复杂、高风险或已有失败尝试时使用 `xhigh`。
 
 只有明确赋予协调职责的 Smart Worker 才可以继续委派。普通 Scout 和 Worker 是叶子 Agent，必须直接完成分配，不得生成其他 agent。
 
-### 推理下限
+### Validator / Judge
 
-所有 subagent 必须使用 `medium`、`high`、`xhigh`、`max` 或 `ultra`。不得使用 `low` 或任何低于 `medium` 的等级。缺省配置可能低于 `medium` 或无法确认时，生成 subagent 时显式指定 `medium` 或更高。
+独立验证、Judge、Reviewer、质量门禁、复杂正确性复核和困难回归诊断使用 `gpt-5.6-sol` + `reasoning_effort: "high"`。验证对象复杂、高风险、证据矛盾或需要否定既有结论时使用 `xhigh`。这些 Agent 默认只读且是叶子 Agent，不得修改被审查产物或继续委派，除非任务明确要求修复。
 
-不要全局使用最高等级。先按任务难度选择最低充分等级，再根据歧义、风险、依赖深度或失败证据提高 effort。
+不得使用 `low` 或 `medium` 作为本技能的默认 subagent profile。无法确认配置是否符合要求时，生成 subagent 时显式指定模型和 reasoning effort。
 
 ## 编写委派任务
 
@@ -213,7 +215,7 @@ Subagent 继承主线程的沙箱和权限环境。主 Agent 必须把实时权�
 2. 委派是否会提高速度、质量或主线程上下文质量？
 3. 每个 Agent 的所有权是否明确且互不重叠？
 4. 上下文、权限、输出和完成标准是否充分？
-5. reasoning effort 是否至少为 `medium`？
+5. 普通任务是否为 Luna Max，困难或验证任务是否为 Sol High/XHigh？
 6. 叶子 Agent 是否被明确禁止继续委派？
 
 在最终交付前检查：
