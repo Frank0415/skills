@@ -1,6 +1,7 @@
 ---
 name: cslides-tutor
-description: Answer slide questions and update existing cslides HTML while preserving source context, MathJax, styling, and closed blocks.
+description: Answer slide questions and update existing cslides HTML while preserving source styling and closed blocks.
+disable-model-invocation: true
 ---
 
 # CSlides Tutor

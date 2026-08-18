@@ -1,13 +1,13 @@
 ---
 name: cspec
-description: Write controlled software specifications.
+description: Write controlled software specifications in technical language.
 ---
 
 # cspec
 
 Write, rewrite, or review software specifications in controlled technical English. Use this skill for requirements, API contracts, design specifications, runbooks, procedures, acceptance criteria, configuration references, and other documents where ambiguity can cause an implementation or operational error.
 
-The style adapts Simplified Technical English (STE) principles to software work and adds normative language from BCP 14. It does not replace the ASD-STE100 standard or its controlled dictionary.
+The style adapts Simplified Technical English (STE) principles to software work and adds normative language from BCP 14.
 
 ## Outcome
 

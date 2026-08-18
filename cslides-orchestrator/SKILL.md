@@ -1,6 +1,7 @@
 ---
 name: cslides-orchestrator
 description: Orchestrate conversion of multiple course-slide PDF with one cslides worker per PDF, bounded concurrency with staged conversion.
+disable-model-invocation: true
 ---
 
 # cslides-orchestrator
