@@ -1,138 +1,130 @@
 ---
 name: cspec
-description: Write controlled software specifications in technical language.
+description: "Write, rewrite, or review software specifications in controlled English or Simplified Chinese. Use for requirements, API contracts, design specs, runbooks, procedures, acceptance criteria, and configuration references. Triggers: cspec, controlled spec, MUST SHOULD MAY, 受控规范, 必须应该可以, 写规格, 验收条件. Detect the document language and apply the matching technique file."
 ---
 
 # cspec
 
-Write, rewrite, or review software specifications in controlled technical English. Use this skill for requirements, API contracts, design specifications, runbooks, procedures, acceptance criteria, configuration references, and other documents where ambiguity can cause an implementation or operational error.
+Write software specifications that have one stable interpretation. The contract is language-independent. Sentence craft is not: load the technique file for the document language.
 
-The style adapts Simplified Technical English (STE) principles to software work and adds normative language from BCP 14.
+- **English** → `references/english-techniques.md`
+- **Simplified Chinese（简体中文）** → `references/chinese-techniques.md`
+- **Mixed text** → the dominant language's file. Keep one keyword set for the whole document. Handle identifiers and quoted strings with that file's rules.
+
+English sentence hygiene follows [SimpleEnglish](https://github.com/AminBlg/SimpleEnglish) (MIT). Chinese techniques implement the same intents with Chinese symptoms. Requirement force follows BCP 14; wording of the keywords lives in the language files.
+
+## Procedure
+
+1. Inspect code, schemas, interfaces, existing terms, and source documents. Reuse the project's established names.
+2. Detect the document language and read the matching technique file before drafting.
+3. Classify each passage as **normative**, **procedural**, or **descriptive**. Rewrite with the rules for that class.
+4. Give every requirement a named actor, a condition, a direct verb, an observable result, and one requirement level.
+5. Run the language file's self-check, then the completion check below.
 
 ## Outcome
 
-Produce a specification that has one stable interpretation. A developer, reviewer, tester, and operator must be able to identify:
+A developer, reviewer, tester, and operator can identify:
 
 - the actor or component;
 - the required behavior;
-- the condition that activates the behavior;
+- the condition that activates it;
 - the observable result;
-- the requirement level;
-- the evidence that verifies the requirement.
+- the requirement level;`
+- the evidence that verifies it.
 
 Preserve technical detail. Simplify the language, not the system.
 
 ## Before writing
 
-Inspect the available code, schemas, interfaces, existing terminology, and source documents. Do not replace an established project term with a preferred synonym.
-
-Resolve these items when they affect the text:
+Resolve these when they affect the text:
 
 - audience and document type;
 - system boundary and named actors;
 - authoritative terms and identifiers;
 - units, formats, limits, defaults, and versions;
-- required behavior versus explanatory information;
+- normative behavior versus explanation;
 - compatibility, safety, security, and data-loss constraints;
 - acceptance or validation method.
 
-Ask only for information that cannot be discovered and would change the contract. Mark unresolved facts as `TBD` with an owner or decision question. Do not invent a value to make the specification look complete.
+Ask only for facts that cannot be discovered and would change the contract. Mark unknown values as `TBD` with an owner or decision question.
 
-## Normative keywords
+## Requirement levels
 
-For a document that uses BCP 14 terminology, include a short convention near the beginning and use these uppercase words only with their defined force:
+Every normative sentence has exactly one level. The language file supplies the words.
 
-- `MUST`: an absolute requirement.
-- `MUST NOT`: an absolute prohibition.
-- `SHOULD`: a strong recommendation for which valid exceptions can exist.
-- `SHOULD NOT`: a discouraged behavior for which valid exceptions can exist.
-- `MAY`: permission, not a requirement.
-- `OPTIONAL`: a feature or field that is not required.
+| Level | Force |
+|---|---|
+| Absolute requirement | Every conforming implementation performs this behavior. |
+| Absolute prohibition | Every conforming implementation avoids this behavior. |
+| Strong recommendation | Valid exceptions can exist; write the exception or decision criterion when it matters. |
+| Permission | The behavior is allowed, not required. |
+| Optional item | A feature, field, or step is available and not required. |
 
-Do not use `MUST` for a preference. Do not use `SHOULD` when every conforming implementation needs the behavior. When a `SHOULD` has a material exception, state the exception or the decision criterion.
+Use one keyword set through the whole document. Put a short convention near the beginning. Lowercase or unmarked words keep ordinary meaning.
 
-Avoid mixing `shall`, `must`, `is required to`, and `needs to` as equivalent requirement markers. Use the selected keyword set consistently. Lowercase words retain their ordinary English meaning unless the document explicitly defines another convention.
+Write absolute requirements for behavior every conforming implementation needs. Write recommendations only when a valid exception can exist. Write prohibitions for invalid states, real bans, and safety constraints. Write expected behavior in the positive when that is the contract.
 
-## Controlled English
+## Data semantics
 
-### Vocabulary
+Name these states separately when they can occur:
 
-- Use one term for one concept and one meaning for one term.
-- Reuse the exact project term. Do not rotate synonyms for variety.
-- Define a new term at first use or add it to a terminology table.
-- Keep product names, API names, identifiers, commands, paths, literals, and units exact.
-- Prefer a direct verb to a nominalization: use `validate the token`, not `perform token validation`.
-- Prefer a common concrete word to a formal alternative when both meanings are equal.
-- Do not use an acronym before defining it, unless the audience and project already treat it as the primary name.
+- field absent;
+- `null`;
+- empty string `""`;
+- empty array or empty object;
+- value `0` or `false`.
 
-### Sentences
+For each applicable input or output, specify type, encoding, format, units, range, precision, default, requiredness, nullability, ordering, and duplicate rules.
 
-- Give each descriptive sentence one topic.
-- Give each normative sentence one independently testable requirement.
-- Give each procedural sentence one instruction, except for actions that occur together.
-- Use active voice when the actor is known. Name the actor when another actor could perform the action.
-- Use imperative verbs for operator or developer procedures.
-- Put a necessary condition before the action: `If the token is expired, the server MUST return...`.
-- Put the action before its result in procedures.
-- Split long logic into sentences or a vertical list. Do not omit a subject, verb, condition, or noun only to shorten the text.
-- As an STE-oriented target, keep procedural sentences at 20 words or fewer and descriptive sentences at 25 words or fewer. Exclude code tokens from mechanical counting when splitting them would reduce accuracy.
-
-### Ambiguity controls
-
-- Replace unclear pronouns such as `it`, `this`, `that`, and `they` with the applicable noun.
-- Replace vague references such as `the above`, `as needed`, `normally`, `appropriate`, `soon`, and `etc.` with a named object or measurable condition.
-- State whether `or` is inclusive or exclusive when both readings are possible.
-- State whether ranges include their endpoints.
-- Attach each modifier and exception to the requirement it changes.
-- Use positive statements for required behavior. Use negative statements for real prohibitions, invalid states, and safety constraints.
-- Do not hide requirements in notes, examples, rationale, or introductions.
-
-## Software specification rules
-
-### Code and identifiers
-
-- Put code elements in backticks in Markdown or `code` elements in HTML.
-- Preserve exact case and spelling for classes, methods, fields, enum values, environment variables, filenames, paths, commands, and literals.
-- Do not pluralize or inflect an identifier. Add a normal noun: `User` objects, the `close` method, the `READY` value.
-- Use the established noun with an HTTP method: send a `POST` request; return an HTTP `401 Unauthorized` status code.
-- Distinguish a filename from a file type and a command from its output.
-
-### Behavioral contracts
+## Behavioral contracts
 
 For each applicable interface or behavior, specify:
 
 - input type, format, encoding, units, range, nullability, and default;
-- preconditions and authorization requirements;
-- state transition and ordering constraints;
+- preconditions and authorization;
+- trigger and input;
+- state transition and ordering;
 - output, return value, or externally visible side effect;
 - error condition and exact error behavior;
-- timeout, retry, cancellation, and idempotency behavior;
-- concurrency and consistency behavior;
-- compatibility or migration behavior;
+- timeout, retry, cancellation, and idempotency;
+- concurrency, consistency, and transaction boundary;
+- compatibility or migration;
 - validation method.
 
-Include only applicable dimensions. Do not add empty sections to imitate completeness.
+Include applicable dimensions only.
 
-### Procedures
+Error requirements name the condition and the observable result together: status code, error code, exception type, exit code, log level, or retry behavior, as the interface uses them.
 
-- Use numbered steps when order matters.
+## Code and identifiers
+
+- Mark code in Markdown backticks or HTML `code`.
+- Keep exact case and spelling for types, methods, fields, enum values, environment variables, filenames, paths, commands, and literals.
+- Attach a normal noun to an identifier: `User` objects, the `close` method, the `READY` value.
+- Pair HTTP methods with a noun: send a `POST` request; return an HTTP `401 Unauthorized` status code.
+- Distinguish a filename from a file type, a command from its output, and UI text from identifiers.
+
+Language-specific identifier phrasing is in the technique files.
+
+## Procedures
+
+- Number steps when order matters.
 - Start each step with an imperative verb.
-- State where the action occurs when the location is not obvious.
-- Separate independent actions into separate steps.
-- Put commands and code in executable form.
-- State the expected observable result after the action when the result is needed to continue safely.
-- Keep information in a `NOTE`; do not put an instruction in a note.
-- State a warning before the action that creates the hazard. Name the hazard, consequence, and prevention action.
+- Name the location when it is not obvious.
+- Put independent actions in separate steps.
+- Write commands and code in executable form.
+- State the observable result when the next step depends on it.
+- Put information in a `NOTE` or `备注`.
+- Put a warning before the action that creates the hazard. Name the hazard, the consequence, and the prevention action. Lead with the command or condition, then the risk.
 
-### Acceptance criteria
+## Acceptance criteria
 
-Make every acceptance criterion observable and repeatable. State concrete inputs, initial state, action, and result. Use Given/When/Then only when it improves the contract; do not force all requirements into that format.
+Make every criterion observable and repeatable. State inputs, initial state, action, and result. Use Given/When/Then when it improves the contract.
 
-Examples are non-normative unless the document explicitly says otherwise. An example must agree with the normative rule and must not introduce a second behavior.
+Examples follow the normative rule. Treat examples as non-normative unless the document says otherwise.
 
 ## Document structure
 
-Preserve the user's requested artifact and established repository template. For a new substantial specification, use only the sections that help implement or verify the system:
+Keep the user's requested artifact and the repository template. For a new substantial specification, use the sections that help implement or verify the system:
 
 ```markdown
 # Title
@@ -147,48 +139,37 @@ Preserve the user's requested artifact and established repository template. For 
 ## Open decisions
 ```
 
-Use requirement IDs when the project needs traceability. Keep each ID stable and assign it to one requirement. Do not use an ID for a heading that contains several independent requirements.
+Assign a stable requirement ID to one requirement when the project needs traceability. Put rationale next to a requirement so it explains the decision and leaves the requirement's force unchanged.
 
-Separate normative requirements from rationale. A rationale can explain why a decision exists, but it cannot weaken or silently expand the requirement.
+## Rewrite and review
 
-## Rewrite and review workflow
-
-1. Preserve the source claims, constraints, and requested structure.
-2. Build or infer a small terminology map.
+1. Keep source claims, constraints, technical detail, and requested structure.
+2. Build a small terminology map.
 3. Separate requirements, descriptions, procedures, examples, and rationale.
-4. Rewrite each item with a named actor, direct verb, condition, and observable result.
-5. Normalize normative keywords and code formatting.
-6. Check every requirement against the implementation evidence or label it as proposed.
-7. Remove repetition, synonym drift, vague qualifiers, and decorative prose.
-8. Verify that acceptance criteria cover the normative behavior.
+4. Complete actor, condition, verb, result, and level for each requirement.
+5. Apply the language file, then normalize keywords and code formatting.
+6. Check each requirement against implementation evidence, or label it proposed / `TBD`.
+7. Confirm acceptance criteria cover the normative behavior.
 
-In review mode, lead with ambiguities, contradictions, unverifiable requirements, missing states, and terminology conflicts. Cite the exact section or line. Do not rewrite the document unless the user asks for edits.
+**Review:** list ambiguities, contradictions, unverifiable requirements, missing states, and terminology conflicts. Cite section or line. Edit only when the user asks for a rewrite.
 
-## Example
-
-Weak:
-
-> The system should quickly handle invalid logins and provide an appropriate response.
-
-Controlled:
-
-> If a client sends an invalid password to `POST /sessions`, the service MUST return an HTTP `401 Unauthorized` status code. The response body MUST contain `code: "INVALID_CREDENTIALS"`. The service MUST NOT create a session.
+**Rewrite:** deliver the specification in the document language.
 
 ## Completion check
 
-Before delivery, confirm:
-
-1. Each normative statement has one requirement level and one testable behavior.
-2. Actors, terms, identifiers, units, conditions, and ranges are unambiguous.
-3. Procedures preserve execution order and use direct commands.
-4. Error, state, and side-effect behavior is present where required.
+1. Each normative sentence has one level and one testable behavior.
+2. Actors, terms, identifiers, units, conditions, and ranges are explicit.
+3. Procedures keep execution order and use direct commands.
+4. Error, state, and side-effect behavior is present where the interface needs it.
 5. Examples agree with the normative text.
-6. No source requirement or technical detail was lost during simplification.
-7. The document does not claim ASD-STE100 compliance unless the project used the official standard, controlled dictionary, and its required compliance process.
+6. Source requirements and technical detail remain.
+7. The language file's self-check has been run.
 
-## Reference basis
+## Sources
 
-- ASD-STE100 Issue 9: <https://www.asd-ste100.org/assets/files/ASD-STE100_ISSUE9.pdf>
+- English techniques adapt [AminBlg/SimpleEnglish](https://github.com/AminBlg/SimpleEnglish) (MIT) and ASD-STE100 Issue 9 structural rules.
 - BCP 14, RFC 2119 and RFC 8174: <https://www.rfc-editor.org/info/bcp14>
-- Google developer documentation style guide: <https://developers.google.com/style>
-- Microsoft procedures and instructions: <https://learn.microsoft.com/en-us/style-guide/procedures-instructions/>
+- ASD-STE100 Issue 9: <https://www.asd-ste100.org>
+- GB/T 1.1—2020: <https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1>
+- Google developer documentation style: <https://developers.google.com/style>
+- Microsoft procedures: <https://learn.microsoft.com/en-us/style-guide/procedures-instructions/>

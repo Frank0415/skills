@@ -1,4 +1,4 @@
 interface:
   display_name: "CSpec"
-  short_description: "Write precise, testable software specifications"
-  default_prompt: "Use $cspec to rewrite this software specification in controlled technical English."
+  short_description: "Write testable software specs in controlled English or Chinese"
+  default_prompt: "Use $cspec to rewrite this software specification. Detect the language and apply the matching technique file."
