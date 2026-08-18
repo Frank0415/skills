@@ -1,6 +1,7 @@
 ---
 name: cplan-56
 description: concise and careful planning style for GPT-5.6
+disable-model-invocation: true
 ---
 
 # cplan-56

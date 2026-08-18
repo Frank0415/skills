@@ -1,6 +1,8 @@
 ---
 name: cslides
 description: Convert one course-slide PDF into a self-contained Chinese HTML study guide with full page coverage, source slides, explanations, MathJax, navigation, and visual QA.
+disable-model-invocation: true
+
 ---
 
 # cslides
