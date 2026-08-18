@@ -1,6 +1,6 @@
 ---
 name: cplan-56
-description: concise planning style
+description: concise and careful planning style for GPT-5.6
 ---
 
 # cplan-56
