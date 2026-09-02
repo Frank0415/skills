@@ -1,4 +1,7 @@
 interface:
   display_name: "CSubagent"
-  short_description: "主动协调边界明确的 Codex subagent 工作"
+  short_description: "仅在显式调用 $csubagent 时协调 Codex subagent 工作"
   default_prompt: "使用 $csubagent 在适合并行的工作中主动协调 subagent，并整合经过验证的结果。"
+
+policy:
+  allow_implicit_invocation: false

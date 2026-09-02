@@ -1,6 +1,6 @@
 ---
 name: csubagent
-description: 协调 Codex subagent 处理可并行的复杂任务，包括探索、检索、测试、审查、独立实现与多文档工作。
+description: "协调 Codex subagent 处理可并行的复杂任务，包括探索、检索、测试、审查、独立实现与多文档工作。仅在用户明确提及或调用 `$csubagent` 时使用；用户未提及时不得自动调用。"
 ---
 
 # csubagent
