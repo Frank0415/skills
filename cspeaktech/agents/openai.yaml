@@ -1,0 +1,4 @@
+interface:
+  display_name: "cspeaktech"
+  short_description: "Explain technical changes in plain language"
+  default_prompt: "Use $cspeaktech to explain this technical specification or proposed change as a standalone mental model."
