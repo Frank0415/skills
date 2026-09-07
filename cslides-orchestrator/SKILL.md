@@ -21,24 +21,15 @@ Use these default profiles:
 - Judge and rejudge: `gpt-5.6-sol` with `reasoning_effort: "high"`.
 - Difficult debugging, ambiguous failures, or high-risk corrections: `gpt-5.6-sol` with `reasoning_effort: "high"`; use `xhigh` when complexity, risk, or failed prior attempts justify it.
 
-Only an explicit user instruction in the current request may override these defaults. A user override may apply globally or to named worker roles; preserve role-specific defaults for roles the user did not override.
+Apply explicit user settings already established in the conversation, including later changes. Otherwise use these defaults. A user override may apply globally or to named worker roles; preserve role-specific defaults for roles the user did not override.
 
-## Preflight interview
+## Resolve concurrency
 
-Before starting workers, resolve concurrency with the user in a `grill-me`-style interview:
+Use at most three active Codex CLI workers by default. Start without asking the user to confirm this default. A user-specified concurrency limit takes precedence and remains in effect until changed.
 
-- Ask one question at a time.
-- Provide the recommended answer.
-- If the user already specified an answer in the current request, do not ask it again.
-- If the user says to use defaults, use three active workers without further questions.
+The limit counts convert, judge, fix, and rejudge workers together. It is a ceiling, not a target: start fewer workers when fewer independent jobs are ready or observed resource limits require it. Reduce concurrency within the existing ceiling when that resolves resource pressure and still meets the user's requirements.
 
-Required question:
-
-1. Ask how many active subagents the user wants.
-   - Recommended and default answer: `3`.
-   - This number is the total active Codex CLI worker count, including convert, judge, fix, and rejudge workers.
-
-Do not ask about model or reasoning effort unless the user explicitly requests a different profile. Do not dispatch any Codex CLI worker until concurrency is resolved, unless the user says to use defaults.
+Ask a focused question only when a concrete resource or cost conflict requires a user decision, such as when proceeding would exceed an agreed budget or lowering concurrency would miss an explicit deadline. Explain the observed conflict and the decision needed. Wait for that decision before dispatching affected work; continue independent work within the established constraints. Do not ask about model or reasoning effort merely to reconfirm the configured profiles.
 
 When launching workers:
 
@@ -53,7 +44,7 @@ When launching workers:
 - Do not create a Python, shell, or Node script that loops over PDFs and writes HTML files.
 - Do not batch multiple PDFs into one cslides prompt.
 - Do not ask one judge or fix worker to evaluate multiple PDFs.
-- Keep the active worker count at the preflight-resolved limit.
+- Keep the active worker count at or below the applicable concurrency limit.
 - A PDF is complete only after convert succeeds and judge returns `PASS`.
 
 ## Prerequisite check
