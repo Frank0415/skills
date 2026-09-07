@@ -88,6 +88,7 @@ Rules:
 - Do not run a loop over PDFs.
 - Do not use computer-use, browser UI, Chrome UI, or GUI automation.
 - Follow cslides fully: read every slide, inspect visual content, create and delete the temporary page audit, preserve every original slide image, and write real teaching explanations instead of template text.
+- Write every proper name and technical term in authored text as Chinese plus English, including repeated occurrences: for example, 全归约（All-Reduce）. Follow cslides' bilingual naming rule and preserve source images and exact code identifiers.
 - Do not stop at page/image coverage. Explain formulas, examples, algorithms, tables, diagrams, transitions, and why pages belong in each unit.
 
 Final response must include:
@@ -119,6 +120,7 @@ Check:
 - every PDF page appears exactly once as an original slide image in the HTML
 - unit grouping keeps complete concepts, formulas, examples, algorithm traces, and visual progressions together
 - explanations are specific to the course content, not generic template text
+- every proper name and technical term in authored headings, navigation, captions, translations, and explanations includes both Chinese and English, consistently across repeated occurrences, under cslides' bilingual naming rule
 - formulas, recurrences, complexity claims, tables, pseudocode, diagrams, and examples are actually explained
 - transitions between units are meaningful and not boilerplate
 - no stale audit files, local image paths, placeholder text, or naked display-math delimiters remain
@@ -156,6 +158,7 @@ Rules:
 - Repair unit grouping when an example, formula derivation, algorithm trace, or visual progression was split incorrectly.
 - Explain formulas, recurrences, complexity, pseudocode, diagrams, and examples directly.
 - Remove generic template language.
+- Repair missing or inconsistent Chinese-English name pairs throughout the authored text under cslides' bilingual naming rule; preserve source images and exact code identifiers.
 - Do not use computer-use, browser UI, Chrome UI, or GUI automation.
 - Do not touch other PDFs or HTML files.
 
