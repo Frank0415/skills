@@ -39,4 +39,4 @@ Lead with the recommended approach. Include the outcome, affected artifacts, key
 
 Revise affected decisions when new evidence or user feedback arrives. Preserve current agreements through long discussions and drop obsolete assumptions. Before presenting, remove instructions that do not change a decision and check that the stopping point matches the user's request.
 
-Adapted from [pvncher's guidance on GPT-6 instructions](https://x.com/pvncher/status/2095991462416490862), alongside the local cplan-56 planning style. This is a local adaptation, not an official distributed skill. The source is provenance; routine use does not require fetching it.
+Adapted from [pvncher's guidance on GPT-6 instructions](https://x.com/pvncher/status/2095991462416490862), alongside earlier local planning guidance. This is a local adaptation, not an official distributed skill. The source is provenance; routine use does not require fetching it.

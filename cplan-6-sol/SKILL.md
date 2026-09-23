@@ -1,14 +1,14 @@
 ---
-name: cplan-56
-description: concise and careful planning style for GPT-5.6
+name: cplan-6-sol
+description: Draft or revise concise, evidence-led plans for GPT-6 Sol when the user requests planning or a plan review.
 disable-model-invocation: true
 ---
 
-# cplan-56
+# cplan-6-sol
 
 Use this skill before planning or at any point in an ongoing planning discussion. Improve how the agent investigates, reasons about, discusses, and writes a plan. Do not treat the plan as frozen, and do not treat planning as authorization to execute.
 
-This style is adapted from GPT-5.6 prompting guidance: define outcomes, evidence, constraints, and completion bars clearly, then leave the agent enough freedom to choose an efficient path.
+This planning style targets GPT-6 Sol: define outcomes, evidence, constraints, and completion bars clearly, then leave the agent enough freedom to choose an efficient path.
 
 ## Planning personality
 

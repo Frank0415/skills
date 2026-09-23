@@ -1,0 +1,4 @@
+interface:
+  display_name: "CPlan 6 Sol"
+  short_description: "Guide concise, evidence-based planning discussions"
+  default_prompt: "Use $cplan-6-sol to improve this planning discussion without making the plan verbose or overly strict."
