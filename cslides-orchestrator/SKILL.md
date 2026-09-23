@@ -17,9 +17,9 @@ This skill does not write course HTML itself. It orchestrates independent Codex 
 Use these default profiles:
 
 - Maximum active workers: `3`.
-- Convert and routine fix: `gpt-5.6-luna` with `reasoning_effort: "max"`.
-- Judge and rejudge: `gpt-5.6-sol` with `reasoning_effort: "high"`.
-- Difficult debugging, ambiguous failures, or high-risk corrections: `gpt-5.6-sol` with `reasoning_effort: "high"`; use `xhigh` when complexity, risk, or failed prior attempts justify it.
+- Convert and routine fix: `gpt-6-luna` with `reasoning_effort: "max"`.
+- Judge and rejudge: `gpt-6-sol` with `reasoning_effort: "high"`.
+- Difficult debugging, ambiguous failures, or high-risk corrections: `gpt-6-sol` with `reasoning_effort: "high"`; use `xhigh` when complexity, risk, or failed prior attempts justify it.
 
 Apply explicit user settings already established in the conversation, including later changes. Otherwise use these defaults. A user override may apply globally or to named worker roles; preserve role-specific defaults for roles the user did not override.
 
@@ -33,9 +33,9 @@ Ask a focused question only when a concrete resource or cost conflict requires a
 
 When launching workers:
 
-- Convert and routine fix: pass `-m gpt-5.6-luna -c model_reasoning_effort="max"`.
-- Judge and rejudge: pass `-m gpt-5.6-sol -c model_reasoning_effort="high"`.
-- Difficult debug or correction: pass `-m gpt-5.6-sol` with `high` or `xhigh` according to the rule above.
+- Convert and routine fix: pass `-m gpt-6-luna -c model_reasoning_effort="max"`.
+- Judge and rejudge: pass `-m gpt-6-sol -c model_reasoning_effort="high"`.
+- Difficult debug or correction: pass `-m gpt-6-sol` with `high` or `xhigh` according to the rule above.
 - If the user explicitly overrides a profile, apply the override to the specified roles or to all workers when the instruction is global.
 
 ## Hard rules
