@@ -18,7 +18,7 @@ description: "协调 Codex subagent 处理可并行的复杂任务，包括探�
 - subagent 返回提炼后的证据、改动和验证结果，不向主线程倾倒原始过程；
 - 并行工作没有引入未处理的写入冲突或相互矛盾的结论；
 - 主 Agent 已综合结果、处理冲突并验证最终输出；
-- 普通任务使用 `gpt-5.6-luna` + `max`，困难任务和验证任务按规则升级到 `gpt-5.6-sol` + `high` 或 `xhigh`。
+- 普通任务使用 `gpt-6-luna` + `max`，困难任务和验证任务按规则升级到 `gpt-6-sol` + `high` 或 `xhigh`。
 
 ## 判断是否委派
 
@@ -58,7 +58,7 @@ description: "协调 Codex subagent 处理可并行的复杂任务，包括探�
 
 ## 角色与模型路由
 
-默认使用 `gpt-5.6-luna` + `reasoning_effort: "max"`。仅在困难问题、困难调试、复杂歧义，或 Validator、Judge、Reviewer 等独立验证任务中使用 `gpt-5.6-sol`。Sol 通常使用 `high`；当问题高度复杂、高风险、跨越深层依赖，或已有尝试未能解决时使用 `xhigh`。
+默认使用 `gpt-6-luna` + `reasoning_effort: "max"`。仅在困难问题、困难调试、复杂歧义，或 Validator、Judge、Reviewer 等独立验证任务中使用 `gpt-6-sol`。Sol 通常使用 `high`；当问题高度复杂、高风险、跨越深层依赖，或已有尝试未能解决时使用 `xhigh`。
 
 用户在当前请求中明确指定模型或 reasoning effort 时，遵守用户指定。不要因为任务重要但并不困难而自动使用 Sol，也不要把所有 Agent 统一升级为 Sol。
 
@@ -72,7 +72,7 @@ description: "协调 Codex subagent 处理可并行的复杂任务，包括探�
 - 检查日志、输出或一组独立材料；
 - 为实现者整理所需证据。
 
-Scout 默认使用 `gpt-5.6-luna` + `reasoning_effort: "max"`。窄范围调查优先使用 `fork_turns: "none"`，避免继承无关历史。任务需要先前决定时，提供必要摘要或选择性继承相关上下文。
+Scout 默认使用 `gpt-6-luna` + `reasoning_effort: "max"`。窄范围调查优先使用 `fork_turns: "none"`，避免继承无关历史。任务需要先前决定时，提供必要摘要或选择性继承相关上下文。
 
 ### Worker
 
@@ -83,17 +83,17 @@ Scout 默认使用 `gpt-5.6-luna` + `reasoning_effort: "max"`。窄范围调查�
 - 完成一份独立文档或一个语义完整的文档组；
 - 根据已确认的问题实施修复并验证。
 
-常规工作使用 `gpt-5.6-luna` + `reasoning_effort: "max"`。只有工作本身属于困难实现或困难调试时，才改用 `gpt-5.6-sol` + `high`；高度复杂、高风险或在已有失败证据下继续处理时使用 `xhigh`。
+常规工作使用 `gpt-6-luna` + `reasoning_effort: "max"`。只有工作本身属于困难实现或困难调试时，才改用 `gpt-6-sol` + `high`；高度复杂、高风险或在已有失败证据下继续处理时使用 `xhigh`。
 
 ### Smart Worker
 
-使用 Smart Worker 处理困难实施、困难调试、歧义消解或需要有限协调的独立工作面。Smart Worker 使用 `gpt-5.6-sol` + `reasoning_effort: "high"`，高度复杂、高风险或已有失败尝试时使用 `xhigh`。
+使用 Smart Worker 处理困难实施、困难调试、歧义消解或需要有限协调的独立工作面。Smart Worker 使用 `gpt-6-sol` + `reasoning_effort: "high"`，高度复杂、高风险或已有失败尝试时使用 `xhigh`。
 
 只有明确赋予协调职责的 Smart Worker 才可以继续委派。普通 Scout 和 Worker 是叶子 Agent，必须直接完成分配，不得生成其他 agent。
 
 ### Validator / Judge
 
-独立验证、Judge、Reviewer、质量门禁、复杂正确性复核和困难回归诊断使用 `gpt-5.6-sol` + `reasoning_effort: "high"`。验证对象复杂、高风险、证据矛盾或需要否定既有结论时使用 `xhigh`。这些 Agent 默认只读且是叶子 Agent，不得修改被审查产物或继续委派，除非任务明确要求修复。
+独立验证、Judge、Reviewer、质量门禁、复杂正确性复核和困难回归诊断使用 `gpt-6-sol` + `reasoning_effort: "high"`。验证对象复杂、高风险、证据矛盾或需要否定既有结论时使用 `xhigh`。这些 Agent 默认只读且是叶子 Agent，不得修改被审查产物或继续委派，除非任务明确要求修复。
 
 不得使用 `low` 或 `medium` 作为本技能的默认 subagent profile。无法确认配置是否符合要求时，生成 subagent 时显式指定模型和 reasoning effort。
 
