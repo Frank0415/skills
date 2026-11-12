@@ -1,125 +1,96 @@
-# Pointer Queue & Experiment Spec Protocol
+# Redesigned Queue Schema, Progressive Disclosure & Round Protocol
 
-## 1. Queue Discovery & Legacy Reuse Rule
+## 1. Self-Contained CLI Location (Never Install to `PATH`)
 
-Before creating any new queue file, inspect the active project / experiment directory (e.g., `experiments/runs/**`, `WORKER-QUEUE.md`, `QUEUE.md`) for an existing pointer queue belonging to the **same class or line of experiments**.
+`cexpctl` ships pre-compiled for Linux (`x86_64`, `aarch64`) and macOS (`arm64`, `x86_64`) directly inside the skill directory:
 
-- **Default behavior (Reuse & Continue)**:
-  - Unless the user **explicitly asks** to start a brand-new queue file or separate campaign, reuse the most recent queue file from the same experiment family.
-  - Preserve all existing `spec` and `result` rows without editing or deleting completed history.
-  - Preserve the existing table schema (whether 3-column or 5-column) and ID prefix/numbering (e.g., if the highest ID in the existing queue is `C004`, start new specs at `C005`; if `S012`, start at `S013`).
-  - Update `specs/00-contract.md` only if the Worker address, server directory, or global resource bounds changed.
-- **Explicit fresh-queue override**:
-  - Create a new campaign folder (e.g., `experiments/runs/<YYYY-MM-DD>-<campaign-slug>/`) with a fresh `WORKER-QUEUE.md`, `specs/00-contract.md`, `specs/`, `results/`, and `artifacts/` **only** when no same-class queue exists or the user explicitly instructs to start a new queue.
+```bash
+<cexp-skill-dir>/scripts/cexpctl --help
+```
+
+Never install `cexpctl` into global `PATH`, `/usr/local/bin`, or modify shell profiles. Always invoke it via its path inside the skill folder so the skill works out of the box on locked-down machines.
 
 ---
 
-## 2. Pure Pointer Table Formats
+## 2. Progressive-Disclosure Queue Discovery (`discover` & `head`)
 
-A queue file MUST remain a pure table of pointers. Never paste multi-paragraph plans, code snippets, or experimental logs into the queue file.
+Before creating a queue document, search the workspace recursively using:
 
-### Format A: 5-Column Parallel-Aware Pointer Table (Default for New Queues)
-
-```markdown
-# <Campaign Name> Work Queue (Pointer Table)
-
-Shared Contract: [00-contract.md](specs/00-contract.md)
-
-| ID | Type | Depends | Resources | Pointer |
-| --- | --- | --- | --- | --- |
-| E001 | spec | none | 1xGPU (>=24GiB, exclusive) | [E001 Spec: Short Title](specs/E001-slug.md) |
-| E002 | spec | none | 1xGPU (>=40GiB, shared-ok) | [E002 Spec: Short Title](specs/E002-slug.md) |
-| E003 | spec | E001 | 2xGPU (>=40GiB, exclusive) | [E003 Spec: Short Title](specs/E003-slug.md) |
-| E002 | result | - | - | [E002 Result](results/E002.md) |
+```bash
+<cexp-skill-dir>/scripts/cexpctl discover <workspace-dir>
 ```
 
-### Format B: 3-Column Legacy Pointer Table (Supported Seamlessly on Reuse)
+`discover` walks `<workspace-dir>` recursively and **progressively discloses ONLY the YAML frontmatter header** (`title`, `focus`, `contract`, `created`) plus compact round/item counts for every `cexp_queue: 1` file—never flooding context with full pointer tables. To inspect one file's header directly, run:
 
-```markdown
-# <Campaign Name> 工作队列（纯指针表）
-
-共享执行契约：[00-contract.md](specs/00-contract.md)
-
-| 问题 | 类型 | 指针 |
-| --- | --- | --- |
-| C001 | spec | [C001规格：标题](specs/C001-slug.md) |
-| C001 | result | [C001答复](results/C001.md) |
+```bash
+<cexp-skill-dir>/scripts/cexpctl head <queue-file>
 ```
 
-When reusing a 3-column queue, keep the 3-column format in the queue file and put the full `depends_on` and GPU/memory resource metadata at the top of each `specs/<ID>-<slug>.md` file so `cexperiment-worker` still schedules out-of-order and in parallel.
-
-### Append-Only & Atomic Locking Invariants
-
-1. **Commander appends `spec` rows; Worker appends `result` rows.**
-2. **Never rewrite the whole file** when a Worker might be running concurrently. Always append rows under an exclusive `fcntl.flock` lock via `scripts/queue_ops.py`.
-3. **Never overwrite a completed `spec`/`result` pair.** If an in-scope bug requires fixing and re-running `C002`, leave `C002`'s original `spec` and `result` untouched as audit history and append a new `C005` spec pointer (e.g., `C005: Fix & Re-verify C002 ...`).
+### Decision Rule: Reuse vs. New Queue Document
+1. **Explicit user override**: if the user explicitly asks to start a fresh queue document, run `cexpctl init` in a new campaign directory.
+2. **Focus match (same overarching topic/system)**: if a discovered queue's `focus` covers the same research or optimization domain (and is not an unrelated legacy format), **reuse that queue document** by opening a new Round (`cexpctl new-round <queue-file> --summary "..." --mode <standard|recursive-improve>`) so Round 1, Round 2, etc. stay cleanly separated inside one unified history!
+3. **Unrelated topic ("风马牛不相及") or no `cexp_queue: 1` file exists**: initialize a brand-new `CEXP-QUEUE.md` via `cexpctl init`. Never reuse ad-hoc non-`cexp_queue` files from older manual workflows.
 
 ---
 
-## 3. Shared Contract Template (`specs/00-contract.md`)
+## 3. Writing the `focus` Header (Progressive-Disclosure Calibration)
 
-Every queue file links to one shared execution contract defining campaign-wide rules:
+The `focus` field in the queue frontmatter is what future sessions see during `discover` and `head`. Calibrate its abstraction level carefully:
 
-```markdown
-# Shared Execution Contract (<Campaign Name>)
-
-- **Queue File**: `<absolute-or-repo-relative-path-to-queue>`
-- **Commander Address**: `<commander-return-handle-or-session-id>`
-- **Worker Address**: `<worker-handle-or-session-id>`
-- **Target Compute Host(s)**: `<ssh-alias-or-local-host>` / Working Dir: `<remote-work-dir>`
-
-## 1. Division of Labor
-- Commander owns all research hypotheses, experimental designs, spec revisions, and scope decisions.
-- Worker executes specs faithfully, maximizes GPU/server utilization via out-of-order and parallel packing, supervises active runs via scheduled wakeups, writes `results/<ID>.md`, and appends `result` pointers.
-
-## 2. Parallelism & Resource Guardrails
-- Out-of-order and multi-GPU parallel execution are explicitly authorized whenever `depends_on` prerequisites have `result` rows and combined resource budgets fit.
-- **GPU etiquette**: Use any GPU with sufficient free VRAM; never kill processes owned by other users.
-- **Benchmark isolation**: Specs marked `exclusive_gpu_timing: true` must not share physical GPUs with other active jobs from this campaign.
-- **Host RAM ceiling**: Combined RSS + pinned memory + `/dev/shm` across all concurrent jobs <= `<N>` GiB (abort guard at `<0.85*N>` GiB).
-- **Disk ceiling & cleanup**: Active temporary data <= `<M>` GiB; delete raw intermediate shards/checkpoints immediately after verifying metrics so persistent footprint stays <= `<K>` GiB.
-
-## 3. Reusable Baseline Assets
-- List verified scripts, datasets, model weights, or I/O harnesses that specs must reuse instead of re-implementing from scratch.
-```
+- **Right level (Umbrella Focus — 1 to 2 sentences)**: state the overarching system/research domain and core objective shared by the experiments in this queue.
+  - *Good example*: `"围绕 Speculative Decoding 训练框架的低比特中间特征量化与快速显卡角色切换加速实验队列。"`
+  - *Good example*: `"Optimize multi-tier NVMe-to-HBM feature prefetching and cache admission policies for long-context draft training."`
+- **Too specific (Forbidden)**: do **not** enumerate individual tasks in `focus` (e.g., do not write *"E001 tests VMM pause, E002 probes INT4 on layer 3, E003 trains 2000 steps, E004..."*). Individual details belong in `specs/<ID>-*.md`.
+- **Too vague (Forbidden)**: do not write generic placeholders like `"GPU experiments"` or `"Model training queue"`.
 
 ---
 
-## 4. Individual Spec Template (`specs/<ID>-<slug>.md`)
+## 4. `cexp_queue: 1` Document Structure
 
-Write every spec so an execution-focused Worker has zero ambiguity and can bin-pack it alongside other specs immediately:
+Every queue document stays compact (~2 lines per experiment) by combining **YAML frontmatter**, a lightweight **`## Rounds` table**, and a **pure-pointer `## Pointers` table**:
 
 ```markdown
-# <ID>: <Concise Experiment Title>
+---
+cexp_queue: 1
+title: "Speculative Decoding Low-Bit Quantization & Framework Acceleration"
+focus: "Evaluate low-bit activation quantization and fast GPU role-switching scheduling to maximize speculative training throughput."
+contract: "specs/00-contract.md"
+created: "2026-11-13"
+---
 
-## Scheduling & Resource Profile
-- `id`: `<ID>`
-- `depends_on`: `none`  <!-- or comma-separated IDs like C001, C002 -->
-- `priority_tier`: `1`  <!-- 1 = launch first when tied; 2 = fill spare GPUs or run after tier 1 -->
-- `gpu_count`: `1`
-- `min_vram_gib_per_gpu`: `32`
-- `prefer_nvlink_pair`: `false`
-- `exclusive_gpu_timing`: `true`  <!-- true for wall-time/latency benchmarks; false for quality/training runs -->
-- `host_ram_budget_gib`: `16`
-- `disk_peak_gib`: `20`
-- `estimated_wall_minutes`: `90`  <!-- initial rough hint; Worker measures/updates actual 5*X estimate -->
+## Rounds
 
-## 1. Objective & Question
-State the exact technical question and falsifiable hypothesis.
+| Round | Mode | Created | Summary |
+| --- | --- | --- | --- |
+| R1 | standard | 2026-11-13 | Initial VMM role-switch & quantization sensitivity baselines |
+| R2 | recursive-improve | 2026-11-14 | Iterative I/O prefetch micro-optimization until ceiling |
 
-## 2. Experimental Matrix & Controls
-Define every arm/condition, fixed hyperparameters, dataset slice, random seeds, warmup/repeat counts, and whether early stopping is forbidden.
+## Pointers
 
-## 3. Implementation & Reuse Notes
-Point to exact codebase files, baseline scripts, environment variables, and known pitfalls to avoid.
-
-## 4. Correctness & Validity Checks
-Specify sanity checks (e.g., lossless hash match, baseline parity within tolerance, no NaN/OOM, GPU isolation check) required before accepting numbers.
-
-## 5. Required Deliverables in `results/<ID>.md`
-- `status`: `complete` | `negative` | `blocked`
-- Summary conclusion table answering Section 1
-- Raw per-repeat measurements + mean/std (for systems benchmarks) or full step curves + final eval metrics (for training runs)
-- Peak GPU VRAM, host RAM, and disk usage + confirmation of temp cleanup
-- Links to reproducible driver scripts, configs, and raw JSON/log artifacts
+| Round | ID | Kind | Depends | Resources | Status | Pointer |
+| --- | --- | --- | --- | --- | --- | --- |
+| R1 | E001 | spec | none | 1gpu:32G:excl | - | [VMM fast role switch](specs/E001-role-switch.md) |
+| R1 | E002 | spec | none | 1gpu:40G:share | - | [Layer quant sensitivity](specs/E002-quant-probe.md) |
+| R1 | E001 | result | - | - | complete | [E001 Result](results/E001.md) |
+| R1 | E002 | result | - | - | complete | [E002 Result](results/E002.md) |
+| R2 | E003 | spec | E001 | 2gpu:40G:excl | - | [Async I/O trace #1](specs/E003-io-trace1.md) |
 ```
+
+### Key Invariants
+1. **Round Separation (`R1`, `R2`, ...)**:
+   - Every new user-initiated batch opens a new Round (`R1`, `R2`, `R3`...).
+   - Within a single batch—such as in-scope bug-fix verifications or multiple micro-improvement iterations inside one `recursive-improve` round—newly appended `spec` pointers stay tagged with **that batch's Round ID** (e.g., all iterations of Round 2 belong to `R2`, linked by `Depends` chains `E003 -> E004 -> E005`).
+   - When the user later asks for a report separating Round 1 vs. Round 2, run `cexpctl status <queue-file> --round R1` and `--round R2` to isolate each round cleanly.
+2. **Compact Resource Token (`Resources` column)**:
+   - Use `<N>gpu:<VRAM>G:<excl|share>` (e.g., `1gpu:32G:excl`, `2gpu:40G:excl`, `1gpu:24G:share`) so Worker sees GPU count, VRAM floor, and benchmark timing exclusivity at a glance, backed by full RAM/disk ceilings in `specs/<ID>-*.md`.
+3. **Immutable History & `flock` Safety**:
+   - Always mutate the queue via `cexpctl` (`init`, `new-round`, `add-spec`) and `cexp-worker` (`add-result`), both of which hold exclusive `flock` file locks.
+   - Never overwrite completed `spec`/`result` pairs; append a new Spec ID (`E005`) when fixing or iterating.
+
+---
+
+## 5. Templates for Contracts & Specs
+
+Copy or adapt the built-in assets when creating campaign files:
+- Shared execution contract template → `assets/00-contract-template.md`
+- Individual parallel-aware spec template → `assets/spec-template.md`
