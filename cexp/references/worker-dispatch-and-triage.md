@@ -1,89 +1,78 @@
-# Worker Dispatch Templates & Post-Run Triage Rubric
+# Worker Dispatch Templates, One-Time Flags & Convergence Modes
 
-## 1. Initial / Appended Queue Dispatch Prompt (Commander → Worker)
+## 1. Two Strict One-Time Per-Invocation Flags (Commander Only)
 
-Send the following platform-agnostic message to the user-supplied Worker address/handle via the runtime's cross-session messaging, queue, or agent-dispatch mechanism:
+Both flags below are **strictly non-sticky**—they activate **only** when explicitly requested in the **same user message** that invokes `cexp`, and **never** carry over to future rounds or later invocations:
+
+| Flag | Trigger Condition (Current Message Only) | Default When Omitted | Behavior |
+| --- | --- | --- | --- |
+| **`monitor`** | User explicitly asks Commander to periodically check/monitor progress (default `3h`, or user-specified interval like `1h`, `6h`, `1d`). | `off` | Commander arms its own recurring wakeup timer (or silently ignores if Commander runtime lacks timer support) and cancels it as soon as the round finishes/stops. **Never alters Worker's `5*X`/`30m` wakeup timer.** |
+| **`recursively_improve`** | User explicitly asks to `recursively improve` / `循环优化` / continuously hunt micro-improvements along a target direction until no visible gain remains. | `off` (`standard` mode) | Round is created with `--mode recursive-improve`. Commander and Worker iterate back-and-forth using performance traces until no meaningful performance gain remains on the table, then stop cleanly. |
+
+---
+
+## 2. Worker Dispatch Prompt (Commander → Worker, Platform-Agnostic)
+
+Send this payload to `<WORKER_ADDRESS>` via whatever cross-session messaging, queue, or agent-dispatch channel the host runtime provides:
 
 ```text
 Use the `cexperiment-worker` skill to execute the pending experiment queue.
 
-- Commander return address (wake me here when blocked or when all queued specs are complete): <COMMANDER_RETURN_ADDRESS>
-- Queue file (append-only pointer table): <ABSOLUTE_QUEUE_PATH>
+- Commander return address (wake me here when blocked or when all pending specs finish): <COMMANDER_RETURN_ADDRESS>
+- Queue document (`cexp_queue: 1`): <ABSOLUTE_QUEUE_PATH>
+- Active Round: <ROUND_ID> (mode: <standard | recursive-improve>)
 - Shared contract: <ABSOLUTE_CONTRACT_PATH>
 - Compute target / server: <SSH_HOST_OR_LOCAL> (work dir: <REMOTE_WORK_DIR>)
 
 Execution reminders:
-1. First verify that your runtime supports scheduled timers / wakeups per `cexperiment-worker`. If your runtime lacks timer capability, do NOT launch any experiments—immediately message me back with `NO_TIMER_CAPABILITY` and stop.
-2. Inspect all pending `spec` rows (those without a paired `result` row) and pack ready specs out-of-order and in parallel across all available server GPUs within the shared contract's VRAM, host RAM, disk, and timing-isolation bounds.
-3. Supervise active runs strictly using `cexperiment-worker`'s adaptive wakeup formula (never leave server jobs unattended, and cancel all of your own timers once the queue is completely finished before waking me).
-4. Do not alter research hypotheses or invent new scope—if a spec has a blocking ambiguity or contradiction, document the state in `results/<ID>.md`, send `SPEC_QUESTION <ID>: <summary + path>` to my return address, and continue any independent specs.
-```
-
-> **Important**: Never include Commander's optional monitoring period (e.g., `3h` or `1h`) in the Worker prompt. Worker's wakeup period is always computed solely from `cexperiment-worker`'s `5*X` / `30m` formula.
-
----
-
-## 2. Mid-Run Question Reply Template (Commander → Worker)
-
-When Worker sends `SPEC_QUESTION <ID>: ...`:
-
-```text
-Continue under `cexperiment-worker`.
-
-Resolution for <ID>:
-- <Direct ruling on the ambiguity or updated pointer>
-- Queue file: <ABSOLUTE_QUEUE_PATH> (updated spec / appended follow-up if applicable)
-
-Resume <ID> (and any unblocked dependents), re-compute your scheduled wakeup period per `cexperiment-worker`, and wake me at <COMMANDER_RETURN_ADDRESS> when the queue is complete or if another blocker arises.
+1. Run the Step 0 timer gate first: if your runtime lacks scheduled wakeup / cron / timer support, do NOT start any server jobs—immediately send `NO_TIMER_CAPABILITY` to my return address and stop.
+2. Use `<cexperiment-worker-skill-dir>/scripts/cexp-worker pending <ABSOLUTE_QUEUE_PATH>` to find all READY specs and pack them out-of-order and in parallel across all available server GPUs within contract bounds.
+3. Supervise active runs strictly via `cexp-worker wakeup` (`clamp(T_rem/5, 15, 30)` min for 1 job; `30` min for >=2 concurrent jobs). When `active_jobs == 0` and no pending specs remain, cancel ALL of your own timers before waking me with `QUEUE_COMPLETE`.
+4. If active round mode is `recursive-improve`, include fine-grained performance traces / bottleneck breakdowns in each `results/<ID>.md` as specified so I can evaluate remaining headroom.
 ```
 
 ---
 
 ## 3. Timer-Capability Edge Cases
 
-| Situation | Required Commander Action |
+| Case | Commander Action |
 | --- | --- |
-| Worker replies `NO_TIMER_CAPABILITY` | Cancel Commander's own monitoring timer (if set for this batch). Stop orchestration immediately. Tell the user: **"当前 Worker Agent 不支持定时唤醒功能，请更换支持定时任务的 Worker Agent 后端。"** (or matching user language). Do not attempt sleep loops or manual workarounds. |
-| User asked Commander to monitor periodically in this turn, and Commander supports timers | Arm a recurring schedule on Commander (`3h` by default, or the explicit custom interval stated in this turn). Cancel it as soon as this batch finishes or halts. |
-| User asked Commander to monitor periodically in this turn, and Commander does **not** support timers | **Silently ignore** the monitoring request. Dispatch Worker normally and wait for Worker's callback. |
-| User did **not** ask Commander to monitor in **this** `cexp` invocation (even if enabled in an earlier batch) | Do **not** arm any Commander monitoring timer. Monitoring is strictly a one-time per-batch flag. |
+| Worker replies `NO_TIMER_CAPABILITY` | Cancel Commander's own monitoring timer (if active). Stop immediately. Tell the user directly: **"当前 Worker Agent 不支持定时唤醒功能，请更换 Worker Agent 后端。"** |
+| `monitor` requested & Commander lacks timer support | **Silently ignore** the monitoring request and proceed normally; wait for Worker's callback. |
 
 ---
 
-## 4. Three-Way Convergence & Triage Rubric (Upon `QUEUE_COMPLETE`)
+## 4. Post-Run Review & Convergence Upon `QUEUE_COMPLETE`
 
-When Worker finishes the queue (having already canceled all of its own timers) and wakes Commander, evaluate every new `results/<ID>.md` against its `specs/<ID>-*.md` using this strict 3-bucket classification:
+Inspect all newly completed `results/<ID>.md` files for the current round (`cexpctl status <queue-file> --round <ROUND_ID>`). Apply the convergence rule matching **this round's mode**:
 
-### Bucket 1: Strictly In-Scope Error or Missing Control → **Solve & Re-Verify Autonomously**
+### Mode A: `standard` Mode (Default When `recursively_improve` Was NOT Requested)
 
-Qualifies **only** when the validity of the **currently scoped** experiment is compromised:
-- Code/measurement bug (wrong tensor slice/offset, corrupted cache read, broken metric calculation, silent OOM/truncation, unaligned batch size or seed parity).
-- Co-scheduling contamination (a latency benchmark ran while another process dirtied the same GPU or exceeded host RAM swap).
-- An obvious missing control **strictly required to establish the current spec's claim** (e.g., evaluating throughput speedup without verifying output correctness, or omitting the direct baseline arm specified by the question).
+Classify findings strictly into three buckets:
 
-**Commander Action**:
-1. Diagnose root cause and formulate the exact fix / missing control.
-2. Write new `specs/<NEXT_ID>-*.md` file(s) and append new `spec` pointer(s) to `<ABSOLUTE_QUEUE_PATH>` via `scripts/queue_ops.py append-spec` (never overwrite completed rows).
-3. Wake `<worker_address>` using the dispatch template in Section 1 to verify at lab grade.
+1. **Strictly In-Scope Bug or Missing Control → Fix & Re-Verify Autonomously**
+   - Code/measurement bug (wrong offset, corrupted read, broken baseline parity, NaN/truncation, benchmark GPU contention) or an obvious overlooked control **strictly required to validate the current spec's question**.
+   - **Action**: Write corrective verification spec(s), register them under the current `<ROUND_ID>` via `cexpctl add-spec`, and re-dispatch Worker.
+2. **Micro-Improvements, Corner Tweaks, or New Out-of-Scope Ideas → Hand Back to User**
+   - Further optimization ideas, micro-improvements, or next-stage hypotheses beyond the current spec scope.
+   - **Action**: **Do NOT dispatch to Worker.** Cancel Commander's monitor timer (if active), confirm Worker is stopped, report the round's conclusions, and present these proposals to the user.
+3. **Clean Completion → Stop Cleanly (Never Nitpick)**
+   - Questions answered cleanly within reasonable depth.
+   - **Action**: Cancel Commander's monitor timer (if active), confirm both agents are stopped with zero active timers, and report results (grouped by Round if requested).
 
-### Bucket 2: Out-of-Scope New Ideas, Micro-Improvements, or Next-Phase Follow-Ups → **Hand Back to User**
+---
 
-Qualifies when the current batch's experiments are valid, and inspecting the results sparks:
-- New research hypotheses or next-stage architectural changes outside this batch's scope;
-- Micro-optimizations, hyperparameter polish, or minor corner-case tweaks ("边边角角 / micro-improvements").
+### Mode B: `recursive-improve` Mode (Active ONLY When Explicitly Requested in Current Invocation)
 
-**Commander Action**:
-1. **Do NOT append new specs or wake the Worker.**
-2. Cancel Commander's monitoring timer (if active). Confirm Worker is already stopped.
-3. Present to the user:
-   - Concise, evidence-backed summary of completed batch results (with links to `WORKER-QUEUE.md`, `specs/`, and `results/`);
-   - A clearly separated **"Proposed Next Steps / Out-of-Scope Ideas for Your Decision"** section so the user decides what to run next.
+In a `recursive-improve` round targeting a specific system/algorithmic optimization direction (e.g., I/O pipeline, kernel scheduling, quantization throughput):
 
-### Bucket 3: Clean & Sufficient Completion → **Stop Cleanly (No Nitpicking)**
-
-Qualifies when all queued questions are answered reliably within reasonable experimental depth, whether results are positive or negative.
-
-**Commander Action**:
-1. Do **not** invent extra ablations or nitpick minor noise just to prolong the campaign.
-2. Cancel Commander's monitoring timer (if active). Confirm Worker is stopped (if Worker was paused awaiting instructions rather than already self-stopped on empty queue, send a brief stand-down message).
-3. Report final synthesized conclusions and result file links to the user.
+1. **First**: if a run suffered an implementation/measurement bug, fix and re-verify just like Bucket 1 above.
+2. **Analyze Performance Traces & Remaining Headroom**:
+   - Inspect profiler breakdowns, hardware utilization ceilings (bandwidth, FLOPs, overlap ratio, bubble time), and the latest iteration's net speedup / metric delta over the prior best arm.
+3. **Decide Continue vs. Converge**:
+   - **Observable / Meaningful Gain Still on the Table (`CONTINUE LOOP`)**:
+     - Traces expose a clear remaining bottleneck (e.g., unhidden synchronization, suboptimal buffer staging, lock contention, kernel launch gap) with non-trivial headroom still uncaptured.
+     - **Action**: Formulate the next targeted micro-improvement + trace spec(s) (`specs/<NEXT_ID>-*.md`), append them under the **same `<ROUND_ID>`** via `cexpctl add-spec` (setting `--depends <PREV_ID>` where sequential comparison applies, or parallel arms when comparing candidates), and wake `<WORKER_ADDRESS>` to execute and collect the new performance trace!
+   - **No Visible / Meaningful Gain Left on the Table (`CONVERGE & STOP`)**:
+     - Throughput/latency has reached near the hardware/theoretical bound, bottleneck is hidden inside unavoidable work, or the latest micro-improvement(s) yielded negligible / noisy / zero net gain.
+     - **Action**: Stop the loop! Cancel Commander's monitor timer (if active), confirm Worker has zero active timers, and present the complete optimization trajectory (`baseline -> iter 1 -> ... -> converged optimum` + trace proof of why nothing significant remains on the table) to the user.
