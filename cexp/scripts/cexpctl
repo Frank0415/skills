@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+case "$OS" in
+  linux*)  OS_TAG="linux" ;;
+  darwin*) OS_TAG="darwin" ;;
+  *) echo "cexpctl: unsupported OS '$OS'" >&2; exit 1 ;;
+esac
+case "$ARCH" in
+  x86_64|amd64)  ARCH_TAG="x86_64" ;;
+  aarch64|arm64) if [ "$OS_TAG" = "darwin" ]; then ARCH_TAG="arm64"; else ARCH_TAG="aarch64"; fi ;;
+  *) echo "cexpctl: unsupported arch '$ARCH'" >&2; exit 1 ;;
+esac
+exec "$SCRIPT_DIR/bin/cexpctl-$OS_TAG-$ARCH_TAG" "$@"
