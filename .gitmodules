@@ -1,0 +1,3 @@
+[submodule "exp-skills"]
+	path = exp-skills
+	url = ../exp-skills.git
