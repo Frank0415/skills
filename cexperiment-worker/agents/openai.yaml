@@ -1,7 +1,0 @@
-interface:
-  display_name: "CExperiment Worker"
-  short_description: "供 cexp 主控调度的多卡并行与自适应定时唤醒实验执行技能"
-  default_prompt: "使用 $cexperiment-worker 按指针队列最大化多卡利用率执行实验规格，按自适应公式管理定时唤醒并在完成后通知 Commander。"
-
-policy:
-  allow_implicit_invocation: false

@@ -1,7 +1,0 @@
-interface:
-  display_name: "CExp"
-  short_description: "作为主控 Commander 编排指针实验队列并调度 cexperiment-worker"
-  default_prompt: "使用 $cexp 将实验思路转化为规格指针队列，派发给指定的 Worker Agent 执行并在完成后复核收敛。"
-
-policy:
-  allow_implicit_invocation: false
